@@ -2,7 +2,7 @@
 
 namespace MeshFiller.Classes
 {
-    public struct Vertex
+    public class Vertex
     {
         // Pre-rotation
         public Vector3 P;
@@ -11,9 +11,9 @@ namespace MeshFiller.Classes
         public Vector3 N; // Normal
 
         // Post-rotation
-        public Vector3 RotatedP;
-        public Vector3 RotatedPu;
-        public Vector3 RotatedPv;
-        public Vector3 RotatedN;
+        public Vector3 RotP;
+        public Vector3 RotPu;
+        public Vector3 RotPv;
+        public Vector3 RotN;
     }
 }

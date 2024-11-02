@@ -39,10 +39,12 @@
             alphaSlider = new TrackBar();
             groupBox2 = new GroupBox();
             resolutionLabel = new Label();
+            triangulationCheckbox = new CheckBox();
             label6 = new Label();
             resolutionSlider = new TrackBar();
             tableLayoutPanel3 = new TableLayoutPanel();
             button1 = new Button();
+            button3 = new Button();
             groupBox3 = new GroupBox();
             button2 = new Button();
             checkBox1 = new CheckBox();
@@ -134,7 +136,7 @@
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new Point(6, 67);
+            label2.Location = new Point(3, 67);
             label2.Name = "label2";
             label2.Size = new Size(30, 15);
             label2.TabIndex = 2;
@@ -143,7 +145,7 @@
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(6, 19);
+            label1.Location = new Point(3, 19);
             label1.Name = "label1";
             label1.Size = new Size(38, 15);
             label1.TabIndex = 2;
@@ -154,12 +156,13 @@
             betaSlider.AutoSize = false;
             betaSlider.LargeChange = 10;
             betaSlider.Location = new Point(4, 82);
-            betaSlider.Maximum = 900;
+            betaSlider.Maximum = 1200;
             betaSlider.Name = "betaSlider";
             betaSlider.Size = new Size(190, 23);
             betaSlider.SmallChange = 5;
             betaSlider.TabIndex = 0;
             betaSlider.TickStyle = TickStyle.None;
+            betaSlider.Value = 500;
             betaSlider.Scroll += BetaSlider_Scroll;
             // 
             // alphaSlider
@@ -167,8 +170,8 @@
             alphaSlider.AutoSize = false;
             alphaSlider.LargeChange = 100;
             alphaSlider.Location = new Point(4, 37);
-            alphaSlider.Maximum = 450;
-            alphaSlider.Minimum = -450;
+            alphaSlider.Maximum = 900;
+            alphaSlider.Minimum = -900;
             alphaSlider.Name = "alphaSlider";
             alphaSlider.Size = new Size(190, 27);
             alphaSlider.SmallChange = 10;
@@ -179,12 +182,12 @@
             // groupBox2
             // 
             groupBox2.Controls.Add(resolutionLabel);
+            groupBox2.Controls.Add(triangulationCheckbox);
             groupBox2.Controls.Add(label6);
             groupBox2.Controls.Add(resolutionSlider);
-            groupBox2.Dock = DockStyle.Fill;
             groupBox2.Location = new Point(3, 152);
             groupBox2.Name = "groupBox2";
-            groupBox2.Size = new Size(200, 71);
+            groupBox2.Size = new Size(200, 96);
             groupBox2.TabIndex = 2;
             groupBox2.TabStop = false;
             groupBox2.Text = "Triangulation";
@@ -192,16 +195,27 @@
             // resolutionLabel
             // 
             resolutionLabel.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            resolutionLabel.Location = new Point(148, 19);
+            resolutionLabel.Location = new Point(148, 44);
             resolutionLabel.Name = "resolutionLabel";
             resolutionLabel.Size = new Size(46, 15);
             resolutionLabel.TabIndex = 3;
             resolutionLabel.TextAlign = ContentAlignment.MiddleRight;
             // 
+            // triangulationCheckbox
+            // 
+            triangulationCheckbox.AutoSize = true;
+            triangulationCheckbox.Location = new Point(6, 22);
+            triangulationCheckbox.Name = "triangulationCheckbox";
+            triangulationCheckbox.Size = new Size(126, 19);
+            triangulationCheckbox.TabIndex = 0;
+            triangulationCheckbox.Text = "Show triangulation";
+            triangulationCheckbox.UseVisualStyleBackColor = true;
+            triangulationCheckbox.CheckedChanged += triangulationCheckbox_CheckedChanged;
+            // 
             // label6
             // 
             label6.AutoSize = true;
-            label6.Location = new Point(6, 19);
+            label6.Location = new Point(3, 44);
             label6.Name = "label6";
             label6.Size = new Size(63, 15);
             label6.TabIndex = 2;
@@ -211,9 +225,9 @@
             // 
             resolutionSlider.AutoSize = false;
             resolutionSlider.LargeChange = 100;
-            resolutionSlider.Location = new Point(4, 37);
-            resolutionSlider.Maximum = 1000;
-            resolutionSlider.Minimum = 1;
+            resolutionSlider.Location = new Point(4, 62);
+            resolutionSlider.Maximum = 100;
+            resolutionSlider.Minimum = 2;
             resolutionSlider.Name = "resolutionSlider";
             resolutionSlider.Size = new Size(190, 28);
             resolutionSlider.SmallChange = 10;
@@ -229,6 +243,7 @@
             tableLayoutPanel3.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
             tableLayoutPanel3.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
             tableLayoutPanel3.Controls.Add(button1, 0, 0);
+            tableLayoutPanel3.Controls.Add(button3, 1, 0);
             tableLayoutPanel3.Dock = DockStyle.Fill;
             tableLayoutPanel3.Location = new Point(0, 0);
             tableLayoutPanel3.Margin = new Padding(0);
@@ -249,11 +264,21 @@
             button1.UseVisualStyleBackColor = true;
             button1.Click += button1_Click;
             // 
+            // button3
+            // 
+            button3.Location = new Point(106, 3);
+            button3.Name = "button3";
+            button3.Size = new Size(75, 23);
+            button3.TabIndex = 2;
+            button3.Text = "anim";
+            button3.UseVisualStyleBackColor = true;
+            button3.Click += button3_Click;
+            // 
             // groupBox3
             // 
             groupBox3.Controls.Add(button2);
             groupBox3.Controls.Add(checkBox1);
-            groupBox3.Location = new Point(3, 249);
+            groupBox3.Location = new Point(3, 274);
             groupBox3.Name = "groupBox3";
             groupBox3.Size = new Size(200, 76);
             groupBox3.TabIndex = 4;
@@ -301,6 +326,7 @@
             MinimumSize = new Size(600, 400);
             Name = "MainWindow";
             Text = "MeshFiller";
+            Resize += MainWindow_Resize;
             tableLayoutPanel1.ResumeLayout(false);
             tableLayoutPanel1.PerformLayout();
             tableLayoutPanel2.ResumeLayout(false);
@@ -340,5 +366,7 @@
         private GroupBox groupBox3;
         private CheckBox checkBox1;
         private Button button2;
+        private Button button3;
+        private CheckBox triangulationCheckbox;
     }
 }
