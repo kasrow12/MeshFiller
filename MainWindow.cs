@@ -9,21 +9,21 @@ namespace MeshFiller
     public partial class MainWindow : Form
     {
         public Vector3[,] surface;
+        public Vector3[,] rotSurface = new Vector3[4, 4];
         public Vertex[,] vertices;
         public List<Triangle> mesh = [];
-        private PolygonRenderer renderer;
 
         public float alpha;
         public float beta;
-        public int resolution = 10;
+        public int resolution;
 
-        public float kd = 0.5f;
-        public float ks = 0.5f;
-        public float m = 10.0f;
+        public float kd;
+        public float ks;
+        public float m;
 
         private bool triangulationVisible = false;
         private Pen trianglePen = Pens.Blue;
-        private Vector3 lightColor = new Vector3(1, 1, 1);
+        private Vector3 lightColor = new(1, 1, 1);
 
         public const int vertexRadius = 10;
 
@@ -37,14 +37,9 @@ namespace MeshFiller
         {
             InitializeComponent();
 
-            AlphaSlider_Scroll(null, null);
-            BetaSlider_Scroll(null, null);
+            AngleSlider_Scroll(null, null);
             ResolutionSlider_Scroll(null, null);
-            kdSlider_Scroll(null, null);
-            ksSlider_Scroll(null, null);
-            mSlider_Scroll(null, null);
-
-            renderer = new PolygonRenderer();
+            LightingSlider_Scroll(null, null);
 
             SetupTimer();
         }
@@ -52,7 +47,7 @@ namespace MeshFiller
         private void SetupTimer()
         {
             animationTimer = new System.Windows.Forms.Timer();
-            animationTimer.Interval = 4; // Approximately 60 FPS
+            animationTimer.Interval = 4;
             animationTimer.Tick += AnimationTimer_Tick;
         }
 
@@ -98,7 +93,7 @@ namespace MeshFiller
 
             alphaSlider.Value = (int)(alpha * 10);
             betaSlider.Value = (int)(beta * 10);
-            RotateMesh();
+            UpdateRotation();
         }
 
         private void ToggleAnimation()
@@ -107,18 +102,6 @@ namespace MeshFiller
                 animationTimer.Stop();
             else
                 animationTimer.Start();
-        }
-
-        private void button1_Click(object sender, EventArgs e)
-        {
-            using OpenFileDialog openFileDialog = new();
-
-            openFileDialog.Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*";
-            if (openFileDialog.ShowDialog() == DialogResult.OK)
-            {
-                LoadBezierSurface(openFileDialog.FileName);
-                canvas.Invalidate();
-            }
         }
 
         private void Canvas_Paint(object sender, PaintEventArgs e)
@@ -130,32 +113,22 @@ namespace MeshFiller
             g.ScaleTransform(1, -1);
             g.TranslateTransform(canvas.Width / 2, -canvas.Height / 2);
 
-            Pen pen = new(Color.Black);
-
-            Quaternion rotZ = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, MathF.PI * alpha / 180f);
-            Quaternion rotX = Quaternion.CreateFromAxisAngle(Vector3.UnitX, MathF.PI * beta / 180f);
-            Quaternion rotZX = Quaternion.Concatenate(rotZ, rotX);
-
             for (int i = 0; i < 4; i++)
             {
                 for (int j = 0; j < 4; j++)
                 {
-                    Vector3 b = surface[i, j];
-                    b = Vector3.Transform(b, rotZX);
-
-                    g.FillEllipse(Brushes.Green, b.X - vertexRadius / 2, b.Y - vertexRadius / 2, vertexRadius, vertexRadius);
+                    Vector3 v = rotSurface[i, j];
+                    g.FillEllipse(Brushes.Green, v.X - vertexRadius / 2, v.Y - vertexRadius / 2, vertexRadius, vertexRadius);
 
                     if (i > 0)
                     {
-                        Vector3 a = surface[i - 1, j];
-                        a = Vector3.Transform(a, rotZX);
-                        g.DrawLine(pen, a.X, a.Y, b.X, b.Y);
+                        Vector3 u = rotSurface[i - 1, j];
+                        g.DrawLine(Pens.Black, u.X, u.Y, v.X, v.Y);
                     }
                     if (j > 0)
                     {
-                        Vector3 c = surface[i, j - 1];
-                        c = Vector3.Transform(c, rotZX);
-                        g.DrawLine(pen, c.X, c.Y, b.X, b.Y);
+                        Vector3 u = rotSurface[i, j - 1];
+                        g.DrawLine(Pens.Black, u.X, u.Y, v.X, v.Y);
                     }
                 }
             }
@@ -164,21 +137,24 @@ namespace MeshFiller
                 DrawTriangulation(g);
             else
             {
-                Vector3 lightPosition = new Vector3(0, 0, 1000);
+                // DEBUG
+                // draw tangents and normals
+                //foreach (Vertex vertex in vertices)
+                //{
+                //    Vector3 p = vertex.RotP;
+                //    Vector3 pu = vertex.RotPu;
+                //    Vector3 pv = vertex.RotPv;
 
-                foreach (Triangle triangle in mesh)
+                //    g.DrawLine(Pens.Red, p.X, p.Y, p.X + pu.X / 4, p.Y + pu.Y / 4);
+                //    g.DrawLine(Pens.Green, p.X, p.Y, p.X + pv.X / 4, p.Y + pv.Y / 4);
+                //    g.DrawLine(Pens.Blue, p.X, p.Y, p.X + vertex.RotN.X * 20, p.Y + vertex.RotN.Y * 20);
+                //}
+
+                foreach (Triangle t in mesh)
                 {
-                    // Project 3D points to 2D screen coordinates
-                    Point[] screenPoints = new Point[3]
-                    {
-            Project(triangle.V1.RotP),
-            Project(triangle.V2.RotP),
-            Project(triangle.V3.RotP)
-                    };
-
-                    FillTriangle(g, screenPoints, triangle, lightPosition);
+                    Scanline.ScanlineFillPolygon(g, [t.V1, t.V2, t.V3]);
+                    //Scanline.FillPolygon(g, [t.V1, t.V2, t.V3]);
                 }
-
             }
         }
 
@@ -227,7 +203,7 @@ namespace MeshFiller
             GenerateMesh();
         }
 
-        private float Bernstein(int i, float t)
+        private float Bernstein(int i, float t) // n variant (n = 3)
         {
             return i switch
             {
@@ -239,15 +215,14 @@ namespace MeshFiller
             };
         }
 
-        private float BernsteinDerivative(int i, float t)
+        private float Bernstein2(int i, float t) // (n - 1) variant
         {
             return i switch
             {
-                0 => -3 * (1 - t) * (1 - t),
-                1 => 3 * (1 - t) * (1 - t) - 6 * t * (1 - t),
-                2 => 6 * t * (1 - t) - 3 * t * t,
-                3 => 3 * t * t,
-                _ => 0,
+                0 => (1 - t) * (1 - t),
+                1 => 2 * t * (1 - t),
+                2 => t * t,
+                _ => throw new ArgumentOutOfRangeException(),
             };
         }
 
@@ -258,23 +233,42 @@ namespace MeshFiller
             Vector3 tangentU = Vector3.Zero;
             Vector3 tangentV = Vector3.Zero;
 
+            // P(u, v)
             for (int i = 0; i < 4; i++)
             {
                 for (int j = 0; j < 4; j++)
                 {
                     float Bu = Bernstein(i, u);
                     float Bv = Bernstein(j, v);
-                    float dBu = BernsteinDerivative(i, u);
-                    float dBv = BernsteinDerivative(j, v);
-
-                    position += Bu * Bv * surface[i, j];
-                    tangentU += dBu * Bv * surface[i, j];
-                    tangentV += Bu * dBv * surface[i, j];
+                    position += surface[i, j] * Bu * Bv;
                 }
             }
 
-            Vector3 normal = Vector3.Cross(tangentU, tangentV);
-            normal = Vector3.Normalize(normal);
+            // Pu(u, v)
+            for (int i = 0; i < 3; i++)
+            {
+                for (int j = 0; j < 4; j++)
+                {
+                    float Bu = Bernstein2(i, u);
+                    float Bv = Bernstein(j, v);
+                    tangentU += (surface[i + 1, j] - surface[i, j]) * Bu * Bv;
+                }
+            }
+            tangentU *= 3; // n * ()
+
+            // Pv(u, v)
+            for (int i = 0; i < 4; i++)
+            {
+                for (int j = 0; j < 3; j++)
+                {
+                    float Bu = Bernstein(i, u);
+                    float Bv = Bernstein2(j, v);
+                    tangentV += (surface[i, j + 1] - surface[i, j]) * Bu * Bv;
+                }
+            }
+            tangentV *= 3; // m * ()
+
+            Vector3 normal = Vector3.Normalize(Vector3.Cross(tangentU, tangentV));
 
             return new Vertex
             {
@@ -288,6 +282,9 @@ namespace MeshFiller
         // Generate the triangulated mesh
         public void GenerateMesh()
         {
+            if (surface is null)
+                return;
+
             mesh.Clear();
 
             vertices = new Vertex[resolution, resolution];
@@ -321,9 +318,6 @@ namespace MeshFiller
 
         public void RotateMesh()
         {
-            alphaLabel.Text = Math.Round(alpha, 2).ToString() + '°';
-            betaLabel.Text = Math.Round(beta, 2).ToString() + '°';
-
             if (vertices == null)
                 return;
 
@@ -342,35 +336,13 @@ namespace MeshFiller
                 }
             }
 
-            canvas.Invalidate();
-        }
-
-        private void AlphaSlider_Scroll(object sender, EventArgs e)
-        {
-            alpha = (float)alphaSlider.Value / 10;
-            RotateMesh();
-        }
-
-        private void BetaSlider_Scroll(object sender, EventArgs e)
-        {
-            beta = (float)betaSlider.Value / 10;
-            RotateMesh();
-        }
-
-        private void ResolutionSlider_Scroll(object sender, EventArgs e)
-        {
-            resolution = resolutionSlider.Value;
-            resolutionLabel.Text = resolution.ToString();
-
-            if (surface != null)
-                GenerateMesh();
-
-            canvas.Invalidate();
-        }
-
-        private void MainWindow_Resize(object sender, EventArgs e)
-        {
-            canvas.Invalidate();
+            for (int i = 0; i < surface.GetLength(0); i++)
+            {
+                for (int j = 0; j < surface.GetLength(1); j++)
+                {
+                    rotSurface[i, j] = Vector3.Transform(surface[i, j], rotZX);
+                }
+            }
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -378,27 +350,54 @@ namespace MeshFiller
             ToggleAnimation();
         }
 
-        private void triangulationCheckbox_CheckedChanged(object sender, EventArgs e)
+        private void LoadSurfaceButton_Click(object sender, EventArgs e)
         {
-            triangulationVisible = triangulationCheckbox.Checked;
+            using OpenFileDialog openFileDialog = new();
+
+            openFileDialog.Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*";
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                LoadBezierSurface(openFileDialog.FileName);
+                canvas.Invalidate();
+            }
+        }
+
+        // ----- UI ----------------------------------------------------------------
+
+        private void MainWindow_Resize(object sender, EventArgs e)
+        {
             canvas.Invalidate();
         }
 
+        private void AngleSlider_Scroll(object sender, EventArgs e)
+        {
+            alpha = (float)alphaSlider.Value / 10;
+            beta = (float)betaSlider.Value / 10;
+            UpdateRotation();
+        }
 
-        private void kdSlider_Scroll(object sender, EventArgs e)
+        public void UpdateRotation()
+        {
+            alphaLabel.Text = Math.Round(alpha, 2).ToString() + '°';
+            betaLabel.Text = Math.Round(beta, 2).ToString() + '°';
+
+            RotateMesh();
+            canvas.Invalidate();
+        }
+
+        private void ResolutionSlider_Scroll(object sender, EventArgs e)
+        {
+            resolution = resolutionSlider.Value;
+            resolutionLabel.Text = resolution.ToString();
+
+            GenerateMesh();
+            canvas.Invalidate();
+        }
+
+        private void LightingSlider_Scroll(object sender, EventArgs e)
         {
             kd = (float)kdSlider.Value / 100.0f;
-            UpdateLighting();
-        }
-
-        private void ksSlider_Scroll(object sender, EventArgs e)
-        {
             ks = (float)ksSlider.Value / 100.0f;
-            UpdateLighting();
-        }
-
-        private void mSlider_Scroll(object sender, EventArgs e)
-        {
             m = (float)mSlider.Value;
             UpdateLighting();
         }
@@ -411,173 +410,11 @@ namespace MeshFiller
             canvas.Invalidate();
         }
 
-        private void FillTriangle(Graphics g, Point[] screenPoints, Triangle triangle, Vector3 lightPos)
+        private void triangulationCheckbox_CheckedChanged(object sender, EventArgs e)
         {
-            // Find triangle bounds
-            int minY = screenPoints.Min(p => p.Y);
-            int maxY = screenPoints.Max(p => p.Y);
-
-            // Sort vertices by Y coordinate
-            var edges = CreateEdgeTable(screenPoints, triangle);
-
-            // Active edge list
-            var activeEdges = new List<Edge>();
-
-            // Scan lines
-            for (int y = minY; y <= maxY; y++)
-            {
-                // Update active edge list
-                activeEdges.RemoveAll(e => e.YMax == y);
-                activeEdges.AddRange(edges.Where(e => e.YMin == y));
-
-                // Sort active edges by X
-                activeEdges.Sort((a, b) => a.XCurrent.CompareTo(b.XCurrent));
-
-                // Fill scan line
-                for (int i = 0; i < activeEdges.Count; i += 2)
-                {
-                    if (i + 1 >= activeEdges.Count) break;
-
-                    int xStart = (int)activeEdges[i].XCurrent;
-                    int xEnd = (int)activeEdges[i + 1].XCurrent;
-
-                    for (int x = xStart; x <= xEnd; x++)
-                    {
-                        // Calculate barycentric coordinates
-                        Vector3 bary = CalculateBarycentricCoordinates(
-                            new Point(x, y),
-                            screenPoints[0],
-                            screenPoints[1],
-                            screenPoints[2]
-                        );
-
-                        // Interpolate Z and normal
-                        float z = InterpolateZ(triangle, bary);
-                        Vector3 normal = Vector3.Normalize(InterpolateNormal(triangle, bary));
-
-                        // Calculate lighting
-                        Color pixelColor = CalculatePixelColor(normal, z, lightPos);
-
-                        using (SolidBrush brush = new SolidBrush(pixelColor))
-                        {
-                            g.FillRectangle(brush, x, y, 1, 1);
-                        }
-                    }
-
-                    // Update X coordinates for next scanline
-                    foreach (var edge in activeEdges)
-                    {
-                        edge.XCurrent += edge.Slope;
-                    }
-                }
-            }
+            triangulationVisible = triangulationCheckbox.Checked;
+            canvas.Invalidate();
         }
 
-        private List<Edge> CreateEdgeTable(Point[] points, Triangle triangle)
-        {
-            var edges = new List<Edge>();
-
-            for (int i = 0; i < 3; i++)
-            {
-                Point start = points[i];
-                Point end = points[(i + 1) % 3];
-
-                if (start.Y != end.Y) // Skip horizontal edges
-                {
-                    if (start.Y > end.Y)
-                    {
-                        // Swap points to ensure start.Y < end.Y
-                        var temp = start;
-                        start = end;
-                        end = temp;
-                    }
-
-                    edges.Add(new Edge
-                    {
-                        YMin = start.Y,
-                        YMax = end.Y,
-                        XCurrent = start.X,
-                        Slope = (float)(end.X - start.X) / (end.Y - start.Y)
-                    });
-                }
-            }
-
-            return edges;
-        }
-
-        private Color CalculatePixelColor(Vector3 normal, float z, Vector3 lightPos)
-        {
-            Vector3 viewVector = new Vector3(0, 0, 1);
-            Vector3 lightDir = Vector3.Normalize(lightPos - new Vector3(0, 0, z));
-
-            // Calculate reflection vector R = 2(N·L)N - L
-            float NdotL = Vector3.Dot(normal, lightDir);
-            Vector3 reflection = Vector3.Normalize((2 * NdotL * normal) - lightDir);
-
-            float diffuse = Math.Max(0, NdotL);
-            float specular = (float)Math.Pow(Math.Max(0, Vector3.Dot(reflection, viewVector)), m);
-
-            // Get object color (either from texture or solid color)
-            Vector3 objectColor = new Vector3(1, 0, 0);
-
-            // Calculate final color components
-            float r = Math.Min(1, kd * diffuse * lightColor.X * objectColor.X +
-                                 ks * specular * lightColor.X);
-            float g = Math.Min(1, kd * diffuse * lightColor.Y * objectColor.Y +
-                                 ks * specular * lightColor.Y);
-            float b = Math.Min(1, kd * diffuse * lightColor.Z * objectColor.Z +
-                                 ks * specular * lightColor.Z);
-
-            // Clamp values between 0 and 255
-            int red = Math.Max(0, Math.Min(255, (int)(r * 255)));
-            int green = Math.Max(0, Math.Min(255, (int)(g * 255)));
-            int blue = Math.Max(0, Math.Min(255, (int)(b * 255)));
-
-            return Color.FromArgb(red, green, blue);
-        }
-
-        private Vector3 InterpolateNormal(Triangle triangle, Vector3 bary)
-        {
-            return new Vector3(
-                bary.X * triangle.V1.RotN.X + bary.Y * triangle.V2.RotN.X + bary.Z * triangle.V3.RotN.X,
-                bary.X * triangle.V1.RotN.Y + bary.Y * triangle.V2.RotN.Y + bary.Z * triangle.V3.RotN.Y,
-                bary.X * triangle.V1.RotN.Z + bary.Y * triangle.V2.RotN.Z + bary.Z * triangle.V3.RotN.Z
-            );
-        }
-
-        private float InterpolateZ(Triangle triangle, Vector3 bary)
-        {
-            return bary.X * triangle.V1.RotP.Z +
-                   bary.Y * triangle.V2.RotP.Z +
-                   bary.Z * triangle.V3.RotP.Z;
-        }
-
-        private Vector3 CalculateBarycentricCoordinates(Point p, Point p1, Point p2, Point p3)
-        {
-            float denominator = ((p2.Y - p3.Y) * (p1.X - p3.X) + (p3.X - p2.X) * (p1.Y - p3.Y));
-            float a = ((p2.Y - p3.Y) * (p.X - p3.X) + (p3.X - p2.X) * (p.Y - p3.Y)) / denominator;
-            float b = ((p3.Y - p1.Y) * (p.X - p3.X) + (p1.X - p3.X) * (p.Y - p3.Y)) / denominator;
-            float c = 1 - a - b;
-
-            return new Vector3(a, b, c);
-        }
-
-        private Point Project(Vector3 point)
-        {
-            return new Point(
-                (int)(point.X),
-                (int)(point.Y)
-            );
-        }
-
-        private class Edge
-        {
-            public int YMin { get; set; }
-            public int YMax { get; set; }
-            public float XCurrent { get; set; }
-            public float Slope { get; set; }
-        }
     }
-
-
 }
