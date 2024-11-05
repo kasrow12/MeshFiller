@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms.VisualStyles;
@@ -10,71 +11,97 @@ namespace MeshFiller.Classes
 {
     public class Scanline
     {
-        public static void ScanlineFillPolygon(Graphics g, List<Vertex> vertices)
+        public static void FillTriangle(Graphics g, List<Vertex> vertices)
         {
-            var sortedVertices = vertices.OrderBy(v => v.RotP.Y).ToList();
-
-            int yMin = (int)sortedVertices.First().RotP.Y;
-            int yMax = (int)sortedVertices.Last().RotP.Y;
-
-            List<Edge> aet = [];
-            List<Edge> edgeTable = CreateEdgeTable(vertices);
             Pen pen = new Pen(Color.FromArgb(new Random().Next(0, 255), new Random().Next(0, 255), new Random().Next(0, 255)));
 
-            for (int y = yMin; y <= yMax; y++)
+            // Find triangle bounds
+            int minY = (int)vertices.Min(p => p.RotP.Y);
+            int maxY = (int)vertices.Max(p => p.RotP.Y);
+
+            // Sort vertices by Y coordinate
+            var edges = CreateEdgeTable(vertices);
+
+            // Active edge list
+            var activeEdges = new List<Edge>();
+
+            // Scan lines
+            for (int y = minY; y <= maxY; y++)
             {
-                aet.RemoveAll(edge => edge.YMax == y);
+                // Update active edge list
+                activeEdges.RemoveAll(e => e.YMax == y);
+                activeEdges.AddRange(edges.Where(e => e.YMin == y));
 
-                // Add edges starting at the current y
-                var edgesToAdd = edgeTable.Where(edge => edge.YMin == y).ToList();
-                aet.AddRange(edgesToAdd);
+                // Sort active edges by X
+                activeEdges.Sort((a, b) => a.XCurrent.CompareTo(b.XCurrent));
 
-                // Sort AET by current x values
-                aet = aet.OrderBy(edge => edge.CurrentX).ToList();
-
-                // Fill pixels between pairs of edges
-                for (int i = 0; i < aet.Count - 1; i += 2)
+                // Fill scan line
+                for (int i = 0; i < activeEdges.Count; i += 2)
                 {
-                    int xStart = (int)Math.Round(aet[i].CurrentX);
-                    int xEnd = (int)Math.Round(aet[i + 1].CurrentX);
-                    g.DrawLine(pen, xStart, y, xEnd, y);
-                }
+                    if (i + 1 >= activeEdges.Count) break;
 
-                foreach (var edge in aet)
-                {
-                    edge.CurrentX += edge.SlopeInverse;
-                }
+                    int xStart = (int)activeEdges[i].XCurrent;
+                    int xEnd = (int)activeEdges[i + 1].XCurrent;
 
-                //Debug.WriteLine($"Y: {y}");
-                //Debug.WriteLine($"AET: {string.Join(", ", aet.Select(e => $"({e.CurrentX}, {e.YMin})"))}");
+                    for (int x = xStart; x <= xEnd; x++)
+                    {
+                        // Calculate barycentric coordinates
+                        //Vector3 bary = CalculateBarycentricCoordinates(
+                        //    new Point(x, y),
+                        //    screenPoints[0],
+                        //    screenPoints[1],
+                        //    screenPoints[2]
+                        //);
+
+                        //// Interpolate Z and normal
+                        //float z = InterpolateZ(triangle, bary);
+                        //Vector3 normal = Vector3.Normalize(InterpolateNormal(triangle, bary));
+
+                        // Calculate lighting
+                        //Color pixelColor = CalculatePixelColor(normal, z, lightPos);
+
+                        //using (SolidBrush brush = new SolidBrush(pixelColor))
+                        //{
+                            g.FillRectangle(pen.Brush, x, y, 1, 1);
+                        //}
+                    }
+
+                    // Update X coordinates for next scanline
+                    foreach (var edge in activeEdges)
+                    {
+                        edge.XCurrent += edge.Slope;
+                    }
+                }
             }
         }
 
         private static List<Edge> CreateEdgeTable(List<Vertex> vertices)
         {
-            List<Edge> edges = [];
+            var edges = new List<Edge>();
 
             for (int i = 0; i < vertices.Count; i++)
             {
-                var start = vertices[i];
-                var end = vertices[(i + 1) % vertices.Count];
+                Vertex start = vertices[i];
+                Vertex end = vertices[(i + 1) % vertices.Count];
 
-                // Skip horizontal edges
-                if (start.RotP.Y == end.RotP.Y)
-                    continue;
-
-                Vertex top = start.RotP.Y < end.RotP.Y ? start : end;
-                Vertex bottom = start.RotP.Y < end.RotP.Y ? end : start;
-
-                float slopeInverse = (bottom.RotP.X - top.RotP.X) / (bottom.RotP.Y - top.RotP.Y);
-
-                edges.Add(new Edge
+                if (start.RotP.Y != end.RotP.Y) // Skip horizontal edges
                 {
-                    YMin = (int)top.RotP.Y,
-                    YMax = (int)bottom.RotP.Y,
-                    CurrentX = top.RotP.X,
-                    SlopeInverse = slopeInverse
-                });
+                    if (start.RotP.Y > end.RotP.Y)
+                    {
+                        // Swap points to ensure start.Y < end.Y
+                        var temp = start;
+                        start = end;
+                        end = temp;
+                    }
+
+                    edges.Add(new Edge
+                    {
+                        YMin = (int)start.RotP.Y,
+                        YMax = (int)end.RotP.Y,
+                        XCurrent = start.RotP.X,
+                        Slope = (float)(end.RotP.X - start.RotP.X) / (end.RotP.Y - start.RotP.Y)
+                    });
+                }
             }
 
             return edges;
@@ -84,116 +111,8 @@ namespace MeshFiller.Classes
         {
             public int YMin { get; set; }
             public int YMax { get; set; }
-            public float CurrentX { get; set; }
-            public float SlopeInverse { get; set; }
+            public float XCurrent { get; set; }
+            public float Slope { get; set; }
         }
-
-        //    public static void FillPolygon(Graphics g, List<Vertex> vertices)
-        //    {
-        //        // Sort vertices by y-coordinate
-        //        vertices = vertices.OrderBy(v => v.RotP.Y).ToList();
-        //        int ymin = (int)vertices.First().RotP.Y;
-        //        int ymax = (int)vertices.Last().RotP.Y;
-        //            Pen pen = new Pen(Color.FromArgb(new Random().Next(0, 255), new Random().Next(0, 255), new Random().Next(0, 255)));
-
-        //        // Active Edge Table (AET) to store edges intersecting the scanline
-        //        List<Edge> AET = new List<Edge>();
-
-        //        // Loop through each scanline from ymin to ymax
-        //        for (int y = ymin; y <= ymax; y++)
-        //        {
-        //            // Step 1: Update AET for current y by adding/removing edges
-
-        //            for (int i = 0; i < vertices.Count; i++)
-        //            {
-        //                Vertex current = vertices[i];
-        //                Vertex previous = vertices[(i - 1 + vertices.Count) % vertices.Count];
-        //                Vertex next = vertices[(i + 1) % vertices.Count];
-
-        //                if ((int)current.RotP.Y == y - 1)
-        //                {
-        //                    // Previous vertex check
-        //                    if (previous.RotP.Y >= current.RotP.Y)
-        //                    {
-        //                        AddEdgeToAET(AET, current, previous);
-        //                    }
-        //                    else
-        //                    {
-        //                        RemoveEdgeFromAET(AET, current, previous);
-        //                    }
-
-        //                    // Next vertex check
-        //                    if (next.RotP.Y >= current.RotP.Y)
-        //                    {
-        //                        AddEdgeToAET(AET, current, next);
-        //                    }
-        //                    else
-        //                    {
-        //                        RemoveEdgeFromAET(AET, current, next);
-        //                    }
-        //                }
-        //            }
-
-        //            // Step 2: Sort AET by x
-        //            AET = AET.OrderBy(edge => edge.x).ToList();
-
-        //            // Step 3: Fill pixels between pairs of x-coordinates
-        //            for (int j = 0; j < AET.Count; j += 2)
-        //            {
-        //                if (j + 1 < AET.Count)
-        //                {
-        //                    int startX = (int)Math.Round(AET[j].x);
-        //                    int endX = (int)Math.Round(AET[j + 1].x);
-        //                    g.FillRectangle(pen.Brush, startX, y, endX - startX, 1);
-        //                }
-        //            }
-
-        //            // Step 4: Update x for edges in AET
-        //            foreach (var edge in AET)
-        //            {
-        //                edge.x += edge.slopeInv;
-        //            }
-
-        //            // Remove edges where ymax == y (end of edge)
-        //            AET.RemoveAll(edge => edge.ymax == y);
-        //        }
-        //    }
-
-        //    // Helper method to add edge to AET
-        //    private static void AddEdgeToAET(List<Edge> AET, Vertex v1, Vertex v2)
-        //    {
-        //        float dx = v2.RotP.X - v1.RotP.X;
-        //        float dy = v2.RotP.Y - v1.RotP.Y;
-        //        if (dy != 0)
-        //        {
-        //            float slopeInv = dx / dy;
-        //            float ymax = Math.Max(v1.RotP.Y, v2.RotP.Y);
-        //            float x = (v1.RotP.Y < v2.RotP.Y) ? v1.RotP.X : v2.RotP.X;
-        //            AET.Add(new Edge(x, slopeInv, ymax));
-        //        }
-        //    }
-
-        //    // Helper method to remove edge from AET
-        //    private static void RemoveEdgeFromAET(List<Edge> AET, Vertex v1, Vertex v2)
-        //    {
-        //        AET.RemoveAll(e => (e.x == v1.RotP.X && e.ymax == Math.Max(v1.RotP.Y, v2.RotP.Y)));
-        //    }
-
-
-        //}
-
-        //public class Edge
-        //{
-        //    public float x;       // Current x intersection
-        //    public float slopeInv; // 1 / slope (for x update)
-        //    public float ymax;    // Maximum y for the edge
-
-        //    public Edge(float x, float slopeInv, float ymax)
-        //    {
-        //        this.x = x;
-        //        this.slopeInv = slopeInv;
-        //        this.ymax = ymax;
-        //    }
-        //}
     }
-    }
+}

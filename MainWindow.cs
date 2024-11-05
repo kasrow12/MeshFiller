@@ -152,7 +152,8 @@ namespace MeshFiller
 
                 foreach (Triangle t in mesh)
                 {
-                    Scanline.ScanlineFillPolygon(g, [t.V1, t.V2, t.V3]);
+                    //Scanline.ScanlineFillPolygon(g, [t.V1, t.V2, t.V3]);
+                    Scanline.FillTriangle(g, [t.V1, t.V2, t.V3]);
                     //Scanline.FillPolygon(g, [t.V1, t.V2, t.V3]);
                 }
             }
