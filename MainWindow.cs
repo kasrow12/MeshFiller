@@ -130,6 +130,11 @@ namespace MeshFiller
                         Vector3 u = rotSurface[i, j - 1];
                         g.DrawLine(Pens.Black, u.X, u.Y, v.X, v.Y);
                     }
+
+                    //g.DrawString($"{surface[i, j]}", new Font("Arial", 8), Brushes.Black, v.X, v.Y);
+
+
+
                 }
             }
 
@@ -153,9 +158,14 @@ namespace MeshFiller
                 foreach (Triangle t in mesh)
                 {
                     //Scanline.ScanlineFillPolygon(g, [t.V1, t.V2, t.V3]);
-                    Scanline.FillTriangle(g, [t.V1, t.V2, t.V3]);
-                    //Scanline.FillPolygon(g, [t.V1, t.V2, t.V3]);
+                    //Scanline.FillTriangle(g, [t.V1, t.V2, t.V3]);
+                    Scanline.FillPolygon(g, [t.V1, t.V2, t.V3]);
                 }
+                //Triangle x = mesh[0];
+                //Scanline.FillPolygon(g, [x.V1, x.V2, x.V3]);
+                //g.FillEllipse(Brushes.Red, x.V1.RotP.X - vertexRadius / 2, x.V1.RotP.Y - vertexRadius / 2, vertexRadius, vertexRadius);
+                //g.FillEllipse(Brushes.Red, x.V2.RotP.X - vertexRadius / 2, x.V2.RotP.Y - vertexRadius / 2, vertexRadius, vertexRadius);
+                //g.FillEllipse(Brushes.Red, x.V3.RotP.X - vertexRadius / 2, x.V3.RotP.Y - vertexRadius / 2, vertexRadius, vertexRadius);
             }
         }
 

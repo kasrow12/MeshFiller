@@ -242,7 +242,6 @@
             betaSlider.SmallChange = 5;
             betaSlider.TabIndex = 0;
             betaSlider.TickStyle = TickStyle.None;
-            betaSlider.Value = 500;
             betaSlider.Scroll += AngleSlider_Scroll;
             // 
             // alphaSlider
@@ -319,7 +318,7 @@
             resolutionSlider.SmallChange = 10;
             resolutionSlider.TabIndex = 0;
             resolutionSlider.TickStyle = TickStyle.None;
-            resolutionSlider.Value = 10;
+            resolutionSlider.Value = 2;
             resolutionSlider.Scroll += ResolutionSlider_Scroll;
             // 
             // tableLayoutPanel3
@@ -365,6 +364,7 @@
             // 
             solidColorRadio.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             solidColorRadio.AutoSize = true;
+            solidColorRadio.BackColor = Color.Transparent;
             solidColorRadio.Checked = true;
             solidColorRadio.Location = new Point(10, 24);
             solidColorRadio.Name = "solidColorRadio";
@@ -372,13 +372,13 @@
             solidColorRadio.TabIndex = 5;
             solidColorRadio.TabStop = true;
             solidColorRadio.Text = "Solid color";
-            solidColorRadio.UseVisualStyleBackColor = true;
+            solidColorRadio.UseVisualStyleBackColor = false;
             // 
             // objectColorSelect
             // 
             objectColorSelect.BackColor = Color.Blue;
             objectColorSelect.Cursor = Cursors.Hand;
-            objectColorSelect.Location = new Point(95, 19);
+            objectColorSelect.Location = new Point(103, 19);
             objectColorSelect.Name = "objectColorSelect";
             objectColorSelect.Size = new Size(30, 30);
             objectColorSelect.TabIndex = 4;
@@ -428,7 +428,6 @@
             // 
             // lightColorSelect
             // 
-            lightColorSelect.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
             lightColorSelect.BackColor = Color.White;
             lightColorSelect.Cursor = Cursors.Hand;
             lightColorSelect.Location = new Point(18, 108);
@@ -470,6 +469,7 @@
             // 
             label5.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
             label5.AutoSize = true;
+            label5.BackColor = Color.Transparent;
             label5.Location = new Point(54, 116);
             label5.Name = "label5";
             label5.Size = new Size(36, 15);

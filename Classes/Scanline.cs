@@ -1,118 +1,115 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms.VisualStyles;
 
 namespace MeshFiller.Classes
 {
     public class Scanline
     {
-        public static void FillTriangle(Graphics g, List<Vertex> vertices)
+        public static void FillPolygon(Graphics g, List<Vertex> vertices)
         {
-            Pen pen = new Pen(Color.FromArgb(new Random().Next(0, 255), new Random().Next(0, 255), new Random().Next(0, 255)));
-
-            // Find triangle bounds
-            int minY = (int)vertices.Min(p => p.RotP.Y);
-            int maxY = (int)vertices.Max(p => p.RotP.Y);
-
-            // Sort vertices by Y coordinate
-            var edges = CreateEdgeTable(vertices);
-
-            // Active edge list
-            var activeEdges = new List<Edge>();
-
-            // Scan lines
-            for (int y = minY; y <= maxY; y++)
-            {
-                // Update active edge list
-                activeEdges.RemoveAll(e => e.YMax == y);
-                activeEdges.AddRange(edges.Where(e => e.YMin == y));
-
-                // Sort active edges by X
-                activeEdges.Sort((a, b) => a.XCurrent.CompareTo(b.XCurrent));
-
-                // Fill scan line
-                for (int i = 0; i < activeEdges.Count; i += 2)
-                {
-                    if (i + 1 >= activeEdges.Count) break;
-
-                    int xStart = (int)activeEdges[i].XCurrent;
-                    int xEnd = (int)activeEdges[i + 1].XCurrent;
-
-                    for (int x = xStart; x <= xEnd; x++)
-                    {
-                        // Calculate barycentric coordinates
-                        //Vector3 bary = CalculateBarycentricCoordinates(
-                        //    new Point(x, y),
-                        //    screenPoints[0],
-                        //    screenPoints[1],
-                        //    screenPoints[2]
-                        //);
-
-                        //// Interpolate Z and normal
-                        //float z = InterpolateZ(triangle, bary);
-                        //Vector3 normal = Vector3.Normalize(InterpolateNormal(triangle, bary));
-
-                        // Calculate lighting
-                        //Color pixelColor = CalculatePixelColor(normal, z, lightPos);
-
-                        //using (SolidBrush brush = new SolidBrush(pixelColor))
-                        //{
-                            g.FillRectangle(pen.Brush, x, y, 1, 1);
-                        //}
-                    }
-
-                    // Update X coordinates for next scanline
-                    foreach (var edge in activeEdges)
-                    {
-                        edge.XCurrent += edge.Slope;
-                    }
-                }
-            }
-        }
-
-        private static List<Edge> CreateEdgeTable(List<Vertex> vertices)
-        {
-            var edges = new List<Edge>();
-
+            List<int> ind = new List<int>();
             for (int i = 0; i < vertices.Count; i++)
             {
-                Vertex start = vertices[i];
-                Vertex end = vertices[(i + 1) % vertices.Count];
+                ind.Add(i);
+            }
+            ind.Sort((a, b) => ((int)vertices[a].RotP.Y).CompareTo((int)vertices[b].RotP.Y));
+            int minY = (int)vertices[ind[0]].RotP.Y;
+            int maxY = (int)vertices[ind[^1]].RotP.Y;
 
-                if (start.RotP.Y != end.RotP.Y) // Skip horizontal edges
+            // Random brush
+            Brush brush = new SolidBrush(Color.FromArgb(new Random().Next(256), new Random().Next(256), new Random().Next(256)));
+
+            List<Edge> aet = new List<Edge>();
+
+            for (int y = minY; y <= maxY; y++)
+            {
+                // For each vertex Pi lying on the previous scanline: P[ind[k]].y = y-1
+                for (int k = 0; k < ind.Count; k++)
                 {
-                    if (start.RotP.Y > end.RotP.Y)
+                    if ((int)vertices[ind[k]].RotP.Y == y - 1)
                     {
-                        // Swap points to ensure start.Y < end.Y
-                        var temp = start;
-                        start = end;
-                        end = temp;
-                    }
+                        // Find the previous vertex Pi-1
+                        int prevInd = (ind[k] - 1 + vertices.Count) % vertices.Count;
+                        if ((int)vertices[prevInd].RotP.Y >= y) //
+                        {
+                            //Debug.WriteLine("Added edge: " + ind[k] + " " + prevInd);
+                            // Add edge Pi-1Pi to AET
+                            aet.Add(new Edge
+                            {
+                                start = ind[k],
+                                stop = prevInd,
+                                XCurrent = vertices[ind[k]].RotP.X,
+                                InvSlope = (vertices[prevInd].RotP.X - vertices[ind[k]].RotP.X) / (vertices[prevInd].RotP.Y - vertices[ind[k]].RotP.Y)
 
-                    edges.Add(new Edge
-                    {
-                        YMin = (int)start.RotP.Y,
-                        YMax = (int)end.RotP.Y,
-                        XCurrent = start.RotP.X,
-                        Slope = (float)(end.RotP.X - start.RotP.X) / (end.RotP.Y - start.RotP.Y)
-                    });
+                            });
+                        }
+                        else if (vertices[prevInd].RotP.Y < y)
+                        {
+                            //Debug.WriteLine("Removed edge: " + ind[k] + " " + prevInd);
+                            // Remove edge Pi-1Pi from AET
+                            int index = aet.FindIndex(e => e.start == prevInd && e.stop == ind[k]);
+                            if (index != -1)
+                            {
+                                aet.RemoveAt(index);
+                            }
+                        }
+
+                        // Find the next vertex Pi+1
+                        int nextInd = (ind[k] + 1) % vertices.Count;
+                        if (nextInd < vertices.Count && (int)vertices[nextInd].RotP.Y >= y)
+                        {
+                            //Debug.WriteLine("Added edge: " + ind[k] + " " + nextInd);
+                            // Add edge Pi+1Pi to AET
+                            aet.Add(new Edge
+                            {
+                                start = ind[k],
+                                stop = nextInd,
+                                XCurrent = vertices[ind[k]].RotP.X,
+                                InvSlope = (vertices[nextInd].RotP.X - vertices[ind[k]].RotP.X) / (vertices[nextInd].RotP.Y - vertices[ind[k]].RotP.Y)
+                            });
+                        }
+                        else if (nextInd < vertices.Count && (int)vertices[nextInd].RotP.Y < y)
+                        {
+                            //Debug.WriteLine("Removed edge: " + ind[k] + " " + nextInd);
+                            // Remove edge Pi+1Pi from AET
+                            int index = aet.FindIndex(e => e.start == nextInd && e.stop == ind[k]);
+                            if (index != -1)
+                            {
+                                aet.RemoveAt(index);
+                            }
+                        }
+                    }
+                }
+
+                // Update AET:
+                // Sort in ascending order of x
+                aet = aet.OrderBy(e => e.XCurrent).ToList();
+
+                // Fill pixels between edges 0-1, 2-3, ..
+                for (int i = 0; i < aet.Count; i += 2)
+                {
+                    int x1 = (int)Math.Round(aet[i].XCurrent);
+                    int x2 = (int)Math.Round(aet[i + 1].XCurrent);
+                    g.FillRectangle(brush, x1, y, x2 - x1, 1);
+                }
+
+                // Update x values for new scanline
+                foreach (var edge in aet)
+                {
+                    edge.XCurrent += edge.InvSlope;
                 }
             }
-
-            return edges;
         }
 
         private class Edge
         {
-            public int YMin { get; set; }
-            public int YMax { get; set; }
-            public float XCurrent { get; set; }
-            public float Slope { get; set; }
+            public int start;
+            public int stop;
+            public float XCurrent;
+            public float InvSlope;
         }
     }
 }
