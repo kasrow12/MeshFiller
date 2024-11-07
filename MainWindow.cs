@@ -1,6 +1,7 @@
 using MeshFiller.Classes;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.Globalization;
 using System.Numerics;
 
@@ -13,17 +14,14 @@ namespace MeshFiller
         public Vertex[,] vertices;
         public List<Triangle> mesh = [];
 
+        private readonly Renderer renderer = new();
+
         public float alpha;
         public float beta;
         public int resolution;
 
-        public float kd;
-        public float ks;
-        public float m;
-
         private bool triangulationVisible = false;
         private Pen trianglePen = Pens.Blue;
-        private Vector3 lightColor = new(1, 1, 1);
 
         public const int vertexRadius = 10;
 
@@ -159,8 +157,11 @@ namespace MeshFiller
                 {
                     //Scanline.ScanlineFillPolygon(g, [t.V1, t.V2, t.V3]);
                     //Scanline.FillTriangle(g, [t.V1, t.V2, t.V3]);
-                    Scanline.FillPolygon(g, [t.V1, t.V2, t.V3]);
+                    renderer.FillPolygon(g, [t.V1, t.V2, t.V3]);
                 }
+                // generate random 4 points and fill them
+                //Scanline.FillPolygon(g, [mesh[2].V1, mesh[40].V2, mesh[23].V3, mesh[88].V3, mesh[100].V3]);
+
                 //Triangle x = mesh[0];
                 //Scanline.FillPolygon(g, [x.V1, x.V2, x.V3]);
                 //g.FillEllipse(Brushes.Red, x.V1.RotP.X - vertexRadius / 2, x.V1.RotP.Y - vertexRadius / 2, vertexRadius, vertexRadius);
@@ -279,10 +280,12 @@ namespace MeshFiller
             }
             tangentV *= 3; // m * ()
 
-            Vector3 normal = Vector3.Normalize(Vector3.Cross(tangentU, tangentV));
+            Vector3 normal = Vector3.Normalize(Vector3.Cross(tangentV, tangentU)); // why not UxV
 
             return new Vertex
             {
+                u = u,
+                v = v,
                 P = position,
                 Pu = tangentU,
                 Pv = tangentV,
@@ -354,6 +357,8 @@ namespace MeshFiller
                     rotSurface[i, j] = Vector3.Transform(surface[i, j], rotZX);
                 }
             }
+
+            canvas.Invalidate();
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -369,7 +374,6 @@ namespace MeshFiller
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
                 LoadBezierSurface(openFileDialog.FileName);
-                canvas.Invalidate();
             }
         }
 
@@ -393,7 +397,6 @@ namespace MeshFiller
             betaLabel.Text = Math.Round(beta, 2).ToString() + '°';
 
             RotateMesh();
-            canvas.Invalidate();
         }
 
         private void ResolutionSlider_Scroll(object sender, EventArgs e)
@@ -407,25 +410,51 @@ namespace MeshFiller
 
         private void LightingSlider_Scroll(object sender, EventArgs e)
         {
-            kd = (float)kdSlider.Value / 100.0f;
-            ks = (float)ksSlider.Value / 100.0f;
-            m = (float)mSlider.Value;
+            renderer.kd = (float)kdSlider.Value / 100.0f;
+            renderer.ks = (float)ksSlider.Value / 100.0f;
+            renderer.m = (float)mSlider.Value;
             UpdateLighting();
         }
 
         public void UpdateLighting()
         {
-            kdLabel.Text = Math.Round(kd, 2).ToString();
-            ksLabel.Text = Math.Round(ks, 2).ToString();
-            mLabel.Text = Math.Round(m, 2).ToString();
+            kdLabel.Text = Math.Round(renderer.kd, 2).ToString();
+            ksLabel.Text = Math.Round(renderer.ks, 2).ToString();
+            mLabel.Text = Math.Round(renderer.m, 2).ToString();
             canvas.Invalidate();
         }
 
-        private void triangulationCheckbox_CheckedChanged(object sender, EventArgs e)
+        private void TriangulationCheckbox_CheckedChanged(object sender, EventArgs e)
         {
             triangulationVisible = triangulationCheckbox.Checked;
             canvas.Invalidate();
         }
+
+        private (Vector3, Color) OpenColorDialog()
+        {
+            lightColorDialog.ShowDialog();
+            Color color = lightColorDialog.Color;
+            Vector3 rgb = new(color.R / 255.0f, color.G / 255.0f, color.B / 255.0f);
+            return (rgb, color);
+        }
+
+        private void LightColorSelect_Click(object sender, EventArgs e)
+        {
+            (Vector3 rgb, Color color) = OpenColorDialog();
+            renderer.LightColor = rgb;
+            lightColorSelect.BackColor = color;
+            canvas.Invalidate();
+        }
+
+        private void ObjectColorSelect_Click(object sender, EventArgs e)
+        {
+            (Vector3 rgb, Color color) = OpenColorDialog();
+            renderer.ObjectColor = rgb;
+            objectColorSelect.BackColor = color;
+            canvas.Invalidate();
+        }
+
+        
 
     }
 }

@@ -69,6 +69,7 @@
             ksSlider = new TrackBar();
             kdSlider = new TrackBar();
             bindingSource1 = new BindingSource(components);
+            lightColorDialog = new ColorDialog();
             tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)canvas).BeginInit();
             menuStrip1.SuspendLayout();
@@ -292,7 +293,7 @@
             triangulationCheckbox.TabIndex = 0;
             triangulationCheckbox.Text = "Show triangulation";
             triangulationCheckbox.UseVisualStyleBackColor = true;
-            triangulationCheckbox.CheckedChanged += triangulationCheckbox_CheckedChanged;
+            triangulationCheckbox.CheckedChanged += TriangulationCheckbox_CheckedChanged;
             // 
             // label3
             // 
@@ -318,7 +319,7 @@
             resolutionSlider.SmallChange = 10;
             resolutionSlider.TabIndex = 0;
             resolutionSlider.TickStyle = TickStyle.None;
-            resolutionSlider.Value = 2;
+            resolutionSlider.Value = 10;
             resolutionSlider.Scroll += ResolutionSlider_Scroll;
             // 
             // tableLayoutPanel3
@@ -382,6 +383,7 @@
             objectColorSelect.Name = "objectColorSelect";
             objectColorSelect.Size = new Size(30, 30);
             objectColorSelect.TabIndex = 4;
+            objectColorSelect.Click += ObjectColorSelect_Click;
             // 
             // normalMapCheckbox
             // 
@@ -434,6 +436,7 @@
             lightColorSelect.Name = "lightColorSelect";
             lightColorSelect.Size = new Size(30, 30);
             lightColorSelect.TabIndex = 4;
+            lightColorSelect.Click += LightColorSelect_Click;
             // 
             // mLabel
             // 
@@ -631,5 +634,6 @@
         private Label label5;
         private BindingSource bindingSource1;
         private CheckBox lightAnimationCheckbox;
+        private ColorDialog lightColorDialog;
     }
 }

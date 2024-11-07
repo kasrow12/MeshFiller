@@ -4,6 +4,9 @@ namespace MeshFiller.Classes
 {
     public class Vertex
     {
+        public float u;
+        public float v;
+
         // Pre-rotation
         public Vector3 P;
         public Vector3 Pu; // Tangent
