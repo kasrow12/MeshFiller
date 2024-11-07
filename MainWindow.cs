@@ -447,7 +447,16 @@ namespace MeshFiller
             canvas.Invalidate();
         }
 
-        
-
+        private void LoadTextureButton_Click(object sender, EventArgs e)
+        {
+            using OpenFileDialog openFileDialog = new();
+            openFileDialog.Filter = "Image files (*.png;*.jpg;*.jpeg;*.bmp)|*.png;*.jpg;*.jpeg;*.bmp|All files (*.*)|*.*";
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                //LoadTextureToByteArray(openFileDialog.FileName);
+                renderer.texture = new Bitmap(openFileDialog.FileName);
+                renderer.UseTexture = true;
+            }
+        }
     }
 }

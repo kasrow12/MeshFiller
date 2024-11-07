@@ -14,6 +14,9 @@ namespace MeshFiller.Classes
         public float ks { get; set; }
         public float m { get; set; }
 
+        public bool UseTexture { get; set; }
+        public Bitmap texture { get; set; }
+
         public Vector3 LightColor { get; set; } = new(1, 1, 1);
         public Vector3 ObjectColor { get; set; } = new(1, 0, 0);
         public Vector3 LightDirection { get; set; } = Vector3.Normalize(new Vector3(0, -1, 1));
@@ -79,16 +82,56 @@ namespace MeshFiller.Classes
                 // Fill pixels between edges 0-1, 2-3, ..
                 for (int i = 0; i < aet.Count; i += 2)
                 {
-                    int x1 = (int)aet[i].XCurrent;
-                    int x2 = (int)aet[i + 1].XCurrent;
+                    int x1 = (int)Math.Round(aet[i].XCurrent);
+                    int x2 = (int)Math.Round(aet[i + 1].XCurrent);
+
+                    Vertex V0 = vertices[0];
+                    Vertex V1 = vertices[1];
+                    Vertex V2 = vertices[2];
 
                     for (int x = x1; x < x2; x++)
                     {
-                        (float alpha, float beta, float gamma) = Barycentric(vertices[0].RotP, vertices[1].RotP, vertices[2].RotP, new Vector3(x, y, 0));
-                        Vector3 interpolatedNormal = InterpolateNormal(vertices[0].RotN, vertices[1].RotN, vertices[2].RotN, alpha, beta, gamma);
+                        (float alpha, float beta, float gamma) = Barycentric(
+                            V0.RotP,
+                            V1.RotP,
+                            V2.RotP,
+                            new Vector3(x, y, 0)
+                        );
 
-                        float u = alpha * vertices[0].u + beta * vertices[1].u + gamma * vertices[2].u;
-                        float v = alpha * vertices[0].v + beta * vertices[1].v + gamma * vertices[2].v;
+                        float z = alpha * V0.RotP.Z + beta * V1.RotP.Z + gamma * V2.RotP.Z;
+
+                        Vector3 interpolatedNormal = InterpolateNormal(
+                            vertices[0].RotN, 
+                            vertices[1].RotN, 
+                            vertices[2].RotN, 
+                            alpha, 
+                            beta, 
+                            gamma
+                            );
+
+                        //float u = alpha * V0.u + beta * V1.u + gamma * V2.u;
+                        //float v = alpha * V0.v + beta * V1.v + gamma * V2.v;
+
+                        // barycentric interpolate u,v, with z correction
+                        float u = (alpha * V0.u / V0.RotP.Z + beta * V1.u / V1.RotP.Z + gamma * V2.u / V2.RotP.Z) / (alpha / V0.RotP.Z + beta / V1.RotP.Z + gamma / V2.RotP.Z);
+                        float v = (alpha * V0.v / V0.RotP.Z + beta * V1.v / V1.RotP.Z + gamma * V2.v / V2.RotP.Z) / (alpha / V0.RotP.Z + beta / V1.RotP.Z + gamma / V2.RotP.Z);
+
+                        //float z0 = 1 / V0.RotP.Z;
+                        //float z1 = 1 / V1.RotP.Z;
+                        //float z2 = 1 / V2.RotP.Z;
+
+                        //// Perspective-correct z (depth) value
+                        //float denom = (alpha * z0 + beta * z1 + gamma * z2);
+                        //float interpolatedZ = 1 / denom;
+
+                        //// Perspective-corrected texture coordinates
+                        //float u = (alpha * (V0.u * z0) + beta * (V1.u * z1) + gamma * (V2.u * z2)) * interpolatedZ;
+                        //float v = (alpha * (V0.v * z0) + beta * (V1.v * z1) + gamma * (V2.v * z2)) * interpolatedZ;
+
+
+                        // Clamp u and v to [0, 1] range if needed
+                        u = Math.Clamp(u, 0, 1);
+                        v = Math.Clamp(v, 0, 1);
 
                         DrawPixel(g, x, y, u, v, interpolatedNormal);
                     }
@@ -134,14 +177,17 @@ namespace MeshFiller.Classes
 
         private Vector3 GetObjectColor(float u, float v)
         {
-            return ObjectColor;
+            if (!UseTexture)
+                return ObjectColor;
 
-            // Sample texture
-            int x = (int)(u * 100) % 100;
-            int y = (int)(v * 100) % 100;
+            int x = (int)(v * (texture.Width - 1));
+            int y = (int)(u * (texture.Height - 1)); // Flip v to match image coordinate system
 
-            // Random color
-            return new Vector3((float)x / 255, (float)y / 255, 0.5f);
+            // Get the color at the (x, y) position
+            Color color = texture.GetPixel(x, y);
+
+            // Convert color to Vector3 (normalize RGB values to 0-1 range)
+            return new Vector3(color.R / 255f, color.G / 255f, color.B / 255f);
         }
 
         private void DrawPixel(Graphics g, int x, int y, float u, float v, Vector3 normal)
