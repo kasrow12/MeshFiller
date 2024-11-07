@@ -111,31 +111,6 @@ namespace MeshFiller
             g.ScaleTransform(1, -1);
             g.TranslateTransform(canvas.Width / 2, -canvas.Height / 2);
 
-            for (int i = 0; i < 4; i++)
-            {
-                for (int j = 0; j < 4; j++)
-                {
-                    Vector3 v = rotSurface[i, j];
-                    g.FillEllipse(Brushes.Green, v.X - vertexRadius / 2, v.Y - vertexRadius / 2, vertexRadius, vertexRadius);
-
-                    if (i > 0)
-                    {
-                        Vector3 u = rotSurface[i - 1, j];
-                        g.DrawLine(Pens.Black, u.X, u.Y, v.X, v.Y);
-                    }
-                    if (j > 0)
-                    {
-                        Vector3 u = rotSurface[i, j - 1];
-                        g.DrawLine(Pens.Black, u.X, u.Y, v.X, v.Y);
-                    }
-
-                    //g.DrawString($"{surface[i, j]}", new Font("Arial", 8), Brushes.Black, v.X, v.Y);
-
-
-
-                }
-            }
-
             if (triangulationVisible)
                 DrawTriangulation(g);
             else
@@ -155,12 +130,10 @@ namespace MeshFiller
 
                 foreach (Triangle t in mesh)
                 {
-                    //Scanline.ScanlineFillPolygon(g, [t.V1, t.V2, t.V3]);
-                    //Scanline.FillTriangle(g, [t.V1, t.V2, t.V3]);
                     renderer.FillPolygon(g, [t.V1, t.V2, t.V3]);
                 }
                 // generate random 4 points and fill them
-                //Scanline.FillPolygon(g, [mesh[2].V1, mesh[40].V2, mesh[23].V3, mesh[88].V3, mesh[100].V3]);
+                //renderer.FillPolygon(g, [mesh[2].V1, mesh[40].V2, mesh[23].V3, mesh[88].V3, mesh[100].V3]);
 
                 //Triangle x = mesh[0];
                 //Scanline.FillPolygon(g, [x.V1, x.V2, x.V3]);
@@ -172,6 +145,26 @@ namespace MeshFiller
 
         public void DrawTriangulation(Graphics g)
         {
+            for (int i = 0; i < 4; i++)
+            {
+                for (int j = 0; j < 4; j++)
+                {
+                    Vector3 v = rotSurface[i, j];
+                    g.FillEllipse(Brushes.Green, v.X - vertexRadius / 2, v.Y - vertexRadius / 2, vertexRadius, vertexRadius);
+
+                    if (i > 0)
+                    {
+                        Vector3 u = rotSurface[i - 1, j];
+                        g.DrawLine(Pens.Black, u.X, u.Y, v.X, v.Y);
+                    }
+                    if (j > 0)
+                    {
+                        Vector3 u = rotSurface[i, j - 1];
+                        g.DrawLine(Pens.Black, u.X, u.Y, v.X, v.Y);
+                    }
+                }
+            }
+
             foreach (Triangle triangle in mesh)
             {
                 Vector3 v1 = triangle.V1.RotP;
@@ -280,7 +273,7 @@ namespace MeshFiller
             }
             tangentV *= 3; // m * ()
 
-            Vector3 normal = Vector3.Normalize(Vector3.Cross(tangentV, tangentU)); // why not UxV
+            Vector3 normal = Vector3.Normalize(Vector3.Cross(tangentU, tangentV));
 
             return new Vertex
             {

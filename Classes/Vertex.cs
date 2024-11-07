@@ -18,5 +18,9 @@ namespace MeshFiller.Classes
         public Vector3 RotPu;
         public Vector3 RotPv;
         public Vector3 RotN;
+
+        public float X => RotP.X;
+        public float Y => RotP.Y;
+        public float Z => RotP.Z;
     }
 }

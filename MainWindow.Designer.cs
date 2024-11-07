@@ -377,7 +377,7 @@
             // 
             // objectColorSelect
             // 
-            objectColorSelect.BackColor = Color.Blue;
+            objectColorSelect.BackColor = Color.Red;
             objectColorSelect.Cursor = Cursors.Hand;
             objectColorSelect.Location = new Point(103, 19);
             objectColorSelect.Name = "objectColorSelect";
