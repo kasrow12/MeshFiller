@@ -444,19 +444,52 @@ namespace MeshFiller
             (Vector3 rgb, Color color) = OpenColorDialog();
             renderer.ObjectColor = rgb;
             objectColorSelect.BackColor = color;
+            renderer.UseTexture = false;
+            solidColorRadio.Checked = true;
             canvas.Invalidate();
         }
 
-        private void LoadTextureButton_Click(object sender, EventArgs e)
+        private void LoadTexture()
         {
             using OpenFileDialog openFileDialog = new();
             openFileDialog.Filter = "Image files (*.png;*.jpg;*.jpeg;*.bmp)|*.png;*.jpg;*.jpeg;*.bmp|All files (*.*)|*.*";
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
-                //LoadTextureToByteArray(openFileDialog.FileName);
-                renderer.texture = new Bitmap(openFileDialog.FileName);
+                try
+                {
+                    renderer.texture = new Bitmap(openFileDialog.FileName);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error loading texture: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                if (renderer.texture.Width < 2 || renderer.texture.Height < 2)
+                {
+                    MessageBox.Show("Texture must be at least 2x2 pixels.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                textureSelect.BackgroundImage = renderer.texture;
+
                 renderer.UseTexture = true;
+                textureRadio.Checked = true;
+                canvas.Invalidate();
             }
+        }
+
+        private void UseTextureRadio_CheckedChanged(object sender, EventArgs e)
+        {
+            renderer.UseTexture = !solidColorRadio.Checked;
+            if (renderer.UseTexture && renderer.texture == null)
+                LoadTexture();
+            canvas.Invalidate();
+        }
+
+        private void TextureSelect_Click(object sender, EventArgs e)
+        {
+            LoadTexture();
         }
     }
 }

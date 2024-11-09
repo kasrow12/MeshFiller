@@ -34,7 +34,6 @@
             menuStrip1 = new MenuStrip();
             loadSurfaceToolStripMenuItem = new ToolStripMenuItem();
             loadSurfaceButton = new ToolStripMenuItem();
-            toolStripMenuItem1 = new ToolStripMenuItem();
             loadNormalMapButton = new ToolStripMenuItem();
             tableLayoutPanel2 = new TableLayoutPanel();
             groupBox1 = new GroupBox();
@@ -53,6 +52,7 @@
             groupBox3 = new GroupBox();
             textureRadio = new RadioButton();
             solidColorRadio = new RadioButton();
+            textureSelect = new Panel();
             objectColorSelect = new Panel();
             normalMapCheckbox = new CheckBox();
             groupBox5 = new GroupBox();
@@ -128,7 +128,7 @@
             // 
             // loadSurfaceToolStripMenuItem
             // 
-            loadSurfaceToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { loadSurfaceButton, toolStripMenuItem1, loadNormalMapButton });
+            loadSurfaceToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { loadSurfaceButton, loadNormalMapButton });
             loadSurfaceToolStripMenuItem.Name = "loadSurfaceToolStripMenuItem";
             loadSurfaceToolStripMenuItem.Size = new Size(37, 20);
             loadSurfaceToolStripMenuItem.Text = "File";
@@ -136,21 +136,14 @@
             // loadSurfaceButton
             // 
             loadSurfaceButton.Name = "loadSurfaceButton";
-            loadSurfaceButton.Size = new Size(168, 22);
+            loadSurfaceButton.Size = new Size(180, 22);
             loadSurfaceButton.Text = "Load surface";
             loadSurfaceButton.Click += LoadSurfaceButton_Click;
-            // 
-            // toolStripMenuItem1
-            // 
-            toolStripMenuItem1.Name = "toolStripMenuItem1";
-            toolStripMenuItem1.Size = new Size(168, 22);
-            toolStripMenuItem1.Text = "Load texture";
-            toolStripMenuItem1.Click += LoadTextureButton_Click;
             // 
             // loadNormalMapButton
             // 
             loadNormalMapButton.Name = "loadNormalMapButton";
-            loadNormalMapButton.Size = new Size(168, 22);
+            loadNormalMapButton.Size = new Size(180, 22);
             loadNormalMapButton.Text = "Load normal map";
             // 
             // tableLayoutPanel2
@@ -342,11 +335,12 @@
             // 
             groupBox3.Controls.Add(textureRadio);
             groupBox3.Controls.Add(solidColorRadio);
+            groupBox3.Controls.Add(textureSelect);
             groupBox3.Controls.Add(objectColorSelect);
             groupBox3.Controls.Add(normalMapCheckbox);
             groupBox3.Location = new Point(3, 332);
             groupBox3.Name = "groupBox3";
-            groupBox3.Size = new Size(288, 80);
+            groupBox3.Size = new Size(288, 95);
             groupBox3.TabIndex = 4;
             groupBox3.TabStop = false;
             groupBox3.Text = "Object";
@@ -355,12 +349,13 @@
             // 
             textureRadio.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             textureRadio.AutoSize = true;
-            textureRadio.Location = new Point(10, 49);
+            textureRadio.Location = new Point(10, 63);
             textureRadio.Name = "textureRadio";
             textureRadio.Size = new Size(63, 19);
             textureRadio.TabIndex = 5;
             textureRadio.Text = "Texture";
             textureRadio.UseVisualStyleBackColor = true;
+            textureRadio.CheckedChanged += UseTextureRadio_CheckedChanged;
             // 
             // solidColorRadio
             // 
@@ -375,6 +370,18 @@
             solidColorRadio.TabStop = true;
             solidColorRadio.Text = "Solid color";
             solidColorRadio.UseVisualStyleBackColor = false;
+            solidColorRadio.CheckedChanged += UseTextureRadio_CheckedChanged;
+            // 
+            // textureSelect
+            // 
+            textureSelect.BackColor = Color.Red;
+            textureSelect.BackgroundImageLayout = ImageLayout.Stretch;
+            textureSelect.Cursor = Cursors.Hand;
+            textureSelect.Location = new Point(103, 59);
+            textureSelect.Name = "textureSelect";
+            textureSelect.Size = new Size(30, 30);
+            textureSelect.TabIndex = 4;
+            textureSelect.Click += TextureSelect_Click;
             // 
             // objectColorSelect
             // 
@@ -627,7 +634,6 @@
         private Label resolutionLabel;
         private Label label3;
         private TrackBar resolutionSlider;
-        private ToolStripMenuItem toolStripMenuItem1;
         private Panel lightColorSelect;
         private RadioButton textureRadio;
         private RadioButton solidColorRadio;
@@ -636,5 +642,6 @@
         private BindingSource bindingSource1;
         private CheckBox lightAnimationCheckbox;
         private ColorDialog lightColorDialog;
+        private Panel textureSelect;
     }
 }
