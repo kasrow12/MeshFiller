@@ -136,21 +136,21 @@
             // loadSurfaceButton
             // 
             loadSurfaceButton.Name = "loadSurfaceButton";
-            loadSurfaceButton.Size = new Size(180, 22);
+            loadSurfaceButton.Size = new Size(168, 22);
             loadSurfaceButton.Text = "Load surface";
             loadSurfaceButton.Click += LoadSurfaceButton_Click;
             // 
             // toolStripMenuItem1
             // 
             toolStripMenuItem1.Name = "toolStripMenuItem1";
-            toolStripMenuItem1.Size = new Size(180, 22);
+            toolStripMenuItem1.Size = new Size(168, 22);
             toolStripMenuItem1.Text = "Load texture";
             toolStripMenuItem1.Click += LoadTextureButton_Click;
             // 
             // loadNormalMapButton
             // 
             loadNormalMapButton.Name = "loadNormalMapButton";
-            loadNormalMapButton.Size = new Size(180, 22);
+            loadNormalMapButton.Size = new Size(168, 22);
             loadNormalMapButton.Text = "Load normal map";
             // 
             // tableLayoutPanel2
@@ -313,14 +313,14 @@
             resolutionSlider.AutoSize = false;
             resolutionSlider.LargeChange = 20;
             resolutionSlider.Location = new Point(52, 47);
-            resolutionSlider.Maximum = 100;
+            resolutionSlider.Maximum = 64;
             resolutionSlider.Minimum = 2;
             resolutionSlider.Name = "resolutionSlider";
             resolutionSlider.Size = new Size(192, 23);
-            resolutionSlider.SmallChange = 10;
+            resolutionSlider.SmallChange = 8;
             resolutionSlider.TabIndex = 0;
             resolutionSlider.TickStyle = TickStyle.None;
-            resolutionSlider.Value = 2;
+            resolutionSlider.Value = 16;
             resolutionSlider.Scroll += ResolutionSlider_Scroll;
             // 
             // tableLayoutPanel3

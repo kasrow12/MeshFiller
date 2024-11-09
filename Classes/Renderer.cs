@@ -32,11 +32,12 @@ namespace MeshFiller.Classes
 
         private static void UpdateAET(List<Edge> aet, Vertex start, Vertex end, int y)
         {
-            if ((int)end.Y >= y)
+            int endY = (int)Math.Round(end.Y);
+            if (endY >= y)
             {
                 aet.Add(new Edge
                 {
-                    end = (int)end.Y,
+                    end = endY,
                     XCurrent = start.X,
                     InvSlope = (end.X - start.X) / (end.Y - start.Y)
                 });
@@ -49,8 +50,8 @@ namespace MeshFiller.Classes
             List<int> ind = Enumerable.Range(0, vertices.Count).ToList();
             ind.Sort((a, b) => (vertices[a].Y).CompareTo(vertices[b].Y));
 
-            int minY = (int)vertices[ind[0]].Y;
-            int maxY = (int)vertices[ind[^1]].Y;
+            int minY = (int)Math.Round(vertices[ind[0]].Y);
+            int maxY = (int)Math.Round(vertices[ind[^1]].Y);
 
             List<Edge> aet = [];
 
@@ -60,7 +61,7 @@ namespace MeshFiller.Classes
                 foreach (int i in ind)
                 {
                     Vertex v = vertices[i];
-                    if ((int)v.Y == y - 1)
+                    if ((int)Math.Round(v.Y) == y - 1)
                     {
                         // Find the previous vertex Pi-1
                         Vertex prev = vertices[(i - 1 + vertices.Count) % vertices.Count];
@@ -83,55 +84,41 @@ namespace MeshFiller.Classes
                 for (int i = 0; i < aet.Count; i += 2)
                 {
                     int x1 = (int)Math.Round(aet[i].XCurrent);
-                    int x2 = (int)Math.Round(aet[i + 1].XCurrent);
+                    int x2 = (int)Math.Round(aet[i + 1].XCurrent); // potestować z Math.Round/ceiling/floor
 
                     Vertex V0 = vertices[0];
                     Vertex V1 = vertices[1];
                     Vertex V2 = vertices[2];
 
-                    for (int x = x1; x < x2; x++)
+                    for (int x = x1; x <= x2; x++)
                     {
                         (float alpha, float beta, float gamma) = Barycentric(
-                            V0.RotP,
-                            V1.RotP,
-                            V2.RotP,
-                            new Vector3(x, y, 0)
+                            new Vector3(x, y, 0),
+                            new Vector3(V0.X, V0.Y, 0),
+                            new Vector3(V1.X, V1.Y, 0),
+                            new Vector3(V2.X, V2.Y, 0)
                         );
 
-                        float z = alpha * V0.RotP.Z + beta * V1.RotP.Z + gamma * V2.RotP.Z;
+                        if (alpha == -1)
+                        {
+                            // zdegenerowane
+                            //Debug.WriteLine($"x: {x} y: {y}");
+                            //g.FillRectangle(Brushes.Green, x, y, 1, 1);
+                            continue;
+                        }
 
-                        Vector3 interpolatedNormal = InterpolateNormal(
-                            vertices[0].RotN, 
-                            vertices[1].RotN, 
-                            vertices[2].RotN, 
-                            alpha, 
-                            beta, 
-                            gamma
-                            );
+                        float z = alpha * V0.Z + beta * V1.Z + gamma * V2.Z;
 
-                        //float u = alpha * V0.u + beta * V1.u + gamma * V2.u;
-                        //float v = alpha * V0.v + beta * V1.v + gamma * V2.v;
+                        (alpha, beta, gamma) = Barycentric(
+                            new Vector3(x, y, z),
+                            V0.RotP, V1.RotP, V2.RotP
+                        );
 
-                        // barycentric interpolate u,v, with z correction
-                        float u = (alpha * V0.u / V0.RotP.Z + beta * V1.u / V1.RotP.Z + gamma * V2.u / V2.RotP.Z) / (alpha / V0.RotP.Z + beta / V1.RotP.Z + gamma / V2.RotP.Z);
-                        float v = (alpha * V0.v / V0.RotP.Z + beta * V1.v / V1.RotP.Z + gamma * V2.v / V2.RotP.Z) / (alpha / V0.RotP.Z + beta / V1.RotP.Z + gamma / V2.RotP.Z);
+                        Vector3 interpolatedNormal = alpha * V0.RotN + beta * V1.RotN + gamma * V2.RotN;
+                        Vector3.Normalize(interpolatedNormal);
 
-                        //float z0 = 1 / V0.RotP.Z;
-                        //float z1 = 1 / V1.RotP.Z;
-                        //float z2 = 1 / V2.RotP.Z;
-
-                        //// Perspective-correct z (depth) value
-                        //float denom = (alpha * z0 + beta * z1 + gamma * z2);
-                        //float interpolatedZ = 1 / denom;
-
-                        //// Perspective-corrected texture coordinates
-                        //float u = (alpha * (V0.u * z0) + beta * (V1.u * z1) + gamma * (V2.u * z2)) * interpolatedZ;
-                        //float v = (alpha * (V0.v * z0) + beta * (V1.v * z1) + gamma * (V2.v * z2)) * interpolatedZ;
-
-
-                        // Clamp u and v to [0, 1] range if needed
-                        u = Math.Clamp(u, 0, 1);
-                        v = Math.Clamp(v, 0, 1);
+                        float u = Math.Clamp(alpha * V0.u + beta * V1.u + gamma * V2.u, 0, 1);
+                        float v = Math.Clamp(alpha * V0.v + beta * V1.v + gamma * V2.v, 0, 1);
 
                         DrawPixel(g, x, y, u, v, interpolatedNormal);
                     }
@@ -145,17 +132,8 @@ namespace MeshFiller.Classes
             }
         }
 
-        public Vector3 InterpolateNormal(Vector3 N1, Vector3 N2, Vector3 N3, float alpha, float beta, float gamma)
-        {
-            // Interpolating normals based on barycentric weights
-            Vector3 interpolatedNormal = alpha * N1 + beta * N2 + gamma * N3;
-
-            // Normalize the result to maintain unit length
-            return Vector3.Normalize(interpolatedNormal);
-        }
-
         // https://gamedev.stackexchange.com/questions/23743/whats-the-most-efficient-way-to-find-barycentric-coordinates
-        private static (float, float, float) Barycentric(Vector3 A, Vector3 B, Vector3 C, Vector3 P)
+        private static (float, float, float) Barycentric(Vector3 P, Vector3 A, Vector3 B, Vector3 C)
         {
             Vector3 V0 = B - A;
             Vector3 V1 = C - A;
@@ -168,6 +146,8 @@ namespace MeshFiller.Classes
             float d21 = Vector3.Dot(V2, V1);
 
             float denom = d00 * d11 - d01 * d01;
+            if (denom == 0)
+                return (-1, -1, -1);
             float beta = (d11 * d20 - d01 * d21) / denom;
             float gamma = (d00 * d21 - d01 * d20) / denom;
             float alpha = 1.0f - beta - gamma;
