@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing;
-using System.Linq;
-using System.Numerics;
+﻿using System.Numerics;
 
 namespace MeshFiller.Classes
 {
@@ -32,6 +27,7 @@ namespace MeshFiller.Classes
             public float InvSlope;
         }
 
+        // Update AET with new edges, start should be lower than end
         private static void UpdateAET(List<Edge> aet, Vertex start, Vertex end, int y)
         {
             int endY = (int)Math.Round(end.Y);
@@ -46,7 +42,7 @@ namespace MeshFiller.Classes
             }
         }
 
-        public void FillPolygon(Graphics g, List<Vertex> vertices)
+        public void FillPolygon(Graphics g, List<Vertex> vertices, Triangle t)
         {
             // Sort vertices by Y
             List<int> ind = Enumerable.Range(0, vertices.Count).ToList();
@@ -88,48 +84,10 @@ namespace MeshFiller.Classes
                     int x1 = (int)Math.Round(aet[i].XCurrent);
                     int x2 = (int)Math.Round(aet[i + 1].XCurrent); // potestować z Math.Round/ceiling/floor
 
-                    Vertex V0 = vertices[0];
-                    Vertex V1 = vertices[1];
-                    Vertex V2 = vertices[2];
-
                     for (int x = x1; x <= x2; x++)
                     {
-                        (float alpha, float beta, float gamma) = Barycentric(
-                            new Vector3(x, y, 0),
-                            new Vector3(V0.X, V0.Y, 0),
-                            new Vector3(V1.X, V1.Y, 0),
-                            new Vector3(V2.X, V2.Y, 0)
-                        );
-
-                        if (alpha == -1)
-                        {
-                            // zdegenerowane
-                            //Debug.WriteLine($"x: {x} y: {y}");
-                            //g.FillRectangle(Brushes.Green, x, y, 1, 1);
-                            continue;
-                        }
-
-                        float z = alpha * V0.Z + beta * V1.Z + gamma * V2.Z;
-
-                        (alpha, beta, gamma) = Barycentric(
-                            new Vector3(x, y, z),
-                            V0.RotP, V1.RotP, V2.RotP
-                        );
-
-                        Vector3 interpolatedNormal = alpha * V0.RotN + beta * V1.RotN + gamma * V2.RotN;
-                        Vector3.Normalize(interpolatedNormal);
-
-                        float u = Math.Clamp(alpha * V0.u + beta * V1.u + gamma * V2.u, 0, 1);
-                        float v = Math.Clamp(alpha * V0.v + beta * V1.v + gamma * V2.v, 0, 1);
-
-                        Vector3 Pu = alpha * V0.RotPu + beta * V1.RotPu + gamma * V2.RotPu;
-                        Vector3 Pv = alpha * V0.RotPv + beta * V1.RotPv + gamma * V2.RotPv;
-                        Pu = Vector3.Normalize(Pu);
-                        Pv = Vector3.Normalize(Pv);
-
-                        Vector3 normal = GetNormal(u, v, interpolatedNormal, Pu, Pv);
-
-                        DrawPixel(g, x, y, u, v, normal);
+                        // for triangles
+                        FillPixel(g, t, x, y);
                     }
                 }
 
@@ -141,32 +99,70 @@ namespace MeshFiller.Classes
             }
         }
 
-        // https://gamedev.stackexchange.com/questions/23743/whats-the-most-efficient-way-to-find-barycentric-coordinates
-        private static (float, float, float) Barycentric(Vector3 P, Vector3 A, Vector3 B, Vector3 C)
+        // Fill pixel based on barycentric coordinates
+        private void FillPixel(Graphics g, Triangle t, int x, int y)
         {
-            Vector3 V0 = B - A;
-            Vector3 V1 = C - A;
-            Vector3 V2 = P - A;
+            (float a, float b, float c) = Barycentric2(new Vector2(x, y), t);
 
-            float d00 = Vector3.Dot(V0, V0);
-            float d01 = Vector3.Dot(V0, V1);
-            float d11 = Vector3.Dot(V1, V1);
-            float d20 = Vector3.Dot(V2, V0);
-            float d21 = Vector3.Dot(V2, V1);
+            if (a == -1)
+            {
+                // zdegenerowany trójkąt
+                return;
+            }
 
-            float denom = d00 * d11 - d01 * d01;
-            if (denom == 0)
-                return (-1, -1, -1);
-            float beta = (d11 * d20 - d01 * d21) / denom;
-            float gamma = (d00 * d21 - d01 * d20) / denom;
-            float alpha = 1.0f - beta - gamma;
+            // Interpolate z, u, v, normal
+            float z = a * t.V1.Z + b * t.V2.Z + c * t.V3.Z;
 
-            return (alpha, beta, gamma);
+            (a, b, c) = Barycentric(new Vector3(x, y, z), t);
+
+            float u = Math.Clamp(a * t.V1.u + b * t.V2.u + c * t.V3.u, 0, 1);
+            float v = Math.Clamp(a * t.V1.v + b * t.V2.v + c * t.V3.v, 0, 1);
+
+            Vector3 normal = Vector3.Normalize(a * t.V1.RotN + b * t.V2.RotN + c * t.V3.RotN);
+            normal = GetNormalMap(u, v, normal, t, a, b, c);
+
+            DrawPixel(g, x, y, u, v, normal);
         }
 
+        // https://gamedev.stackexchange.com/questions/23743/whats-the-most-efficient-way-to-find-barycentric-coordinates
+        private static (float, float, float) Barycentric(Vector3 P, Triangle t)
+        {
+            Vector3 B2 = P - t.V1.RotP;
+
+            float d20 = Vector3.Dot(B2, t.B0);
+            float d21 = Vector3.Dot(B2, t.B1);
+
+            if (float.IsInfinity(t.invDenom))
+                return (-1, -1, -1);
+
+            float b = (t.d11 * d20 - t.d01 * d21) * t.invDenom;
+            float c = (t.d00 * d21 - t.d01 * d20) * t.invDenom;
+            float a = 1.0f - b - c;
+
+            return (a, b, c);
+        }
+
+        private static (float, float, float) Barycentric2(Vector2 P, Triangle t)
+        {
+            Vector2 P2 = P - new Vector2(t.V1.RotP.X, t.V1.RotP.Y);
+
+            float p20 = Vector2.Dot(P2, t.P0);
+            float p21 = Vector2.Dot(P2, t.P1);
+
+            if (float.IsInfinity(t.pInvDenom))
+                return (-1, -1, -1);
+
+            float b = (t.p11 * p20 - t.p01 * p21) * t.pInvDenom;
+            float c = (t.p00 * p21 - t.p01 * p20) * t.pInvDenom;
+            float a = 1.0f - b - c;
+
+            return (a, b, c);
+        }
+
+        // Get object color from texture
         private Vector3 GetObjectColor(float u, float v)
         {
-            if (!UseTexture)
+            if (!UseTexture || Texture is null)
                 return ObjectColor;
 
             int x = (int)(v * (Texture.Width - 1));
@@ -177,9 +173,10 @@ namespace MeshFiller.Classes
             return new Vector3(color.R / 255f, color.G / 255f, color.B / 255f);
         }
 
-        private Vector3 GetNormal(float u, float v, Vector3 normal, Vector3 tangentU, Vector3 tangentV)
+        // Calculate normal from normal map
+        private Vector3 GetNormalMap(float u, float v, Vector3 normal, Triangle t, float a, float b, float c)
         {
-            if (!UseNormalMap)
+            if (!UseNormalMap || NormalMap is null)
                 return normal;
 
             int x = (int)(v * (NormalMap.Width - 1));
@@ -193,26 +190,31 @@ namespace MeshFiller.Classes
                 color.B / 255f * 2 - 1
             );
 
+            Vector3 Pu = Vector3.Normalize(a * t.V1.RotPu + b * t.V2.RotPu + c * t.V3.RotPu);
+            Vector3 Pv = Vector3.Normalize(a * t.V1.RotPv + b * t.V2.RotPv + c * t.V3.RotPv);
+
             // M = [Pu, Pv, N]
-            Matrix3x3 M = new(tangentU, tangentV, normal);
+            Matrix3x3 M = new(Pu, Pv, normal);
 
             return Vector3.Normalize(M * normalMap);
         }
 
+        // Draw pixel with Lambert shading
         private void DrawPixel(Graphics g, int x, int y, float u, float v, Vector3 normal)
         {
-            float NdotL = Math.Max(Vector3.Dot(normal, LightDirection), 0);
+            float NdotL = Vector3.Dot(normal, LightDirection);
+            float cosNL = Math.Max(NdotL, 0); // cos >= 0
 
-            Vector3 R = 2 * Vector3.Dot(normal, LightDirection) * normal - LightDirection;
-            R = Vector3.Normalize(R);
+            Vector3 R = Vector3.Normalize(2 * NdotL * normal - LightDirection);
 
-            float VdotR = Math.Max(Vector3.Dot(V, R), 0);
+            float cosVR = Math.Max(Vector3.Dot(V, R), 0);
 
             Vector3 objectColor = GetObjectColor(u, v);
-            Vector3 diffuse = kd * LightColor * objectColor * NdotL;
-            Vector3 specular = ks * LightColor * objectColor * (float)Math.Pow(VdotR, m);
 
-            Vector3 color = Vector3.Clamp(diffuse + specular, new Vector3(0), new Vector3(1));
+            Vector3 diffuse = kd * LightColor * objectColor * cosNL;
+            Vector3 specular = ks * LightColor * objectColor * (float)Math.Pow(cosVR, m);
+
+            Vector3 color = Vector3.Clamp(diffuse + specular, Vector3.Zero, Vector3.One);
 
             // Convert to 0-255 range
             Color finalColor = Color.FromArgb(
@@ -222,28 +224,6 @@ namespace MeshFiller.Classes
             );
 
             g.FillRectangle(new SolidBrush(finalColor), x, y, 1, 1);
-        }
-
-    }
-
-    public struct Matrix3x3
-    {
-        private Vector3 row1, row2, row3;
-
-        public Matrix3x3(Vector3 col1, Vector3 col2, Vector3 col3)
-        {
-            row1 = new Vector3(col1.X, col2.X, col3.X);
-            row2 = new Vector3(col1.Y, col2.Y, col3.Y);
-            row3 = new Vector3(col1.Z, col2.Z, col3.Z);
-        }
-
-        public static Vector3 operator *(Matrix3x3 matrix, Vector3 vec)
-        {
-            return new Vector3(
-                Vector3.Dot(matrix.row1, vec),
-                Vector3.Dot(matrix.row2, vec),
-                Vector3.Dot(matrix.row3, vec)
-            );
         }
     }
 }

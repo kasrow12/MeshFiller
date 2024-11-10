@@ -1,7 +1,4 @@
 using MeshFiller.Classes;
-using System.Diagnostics;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.Globalization;
 using System.Numerics;
 
@@ -130,7 +127,7 @@ namespace MeshFiller
 
                 foreach (Triangle t in mesh)
                 {
-                    renderer.FillPolygon(g, [t.V1, t.V2, t.V3]);
+                    renderer.FillPolygon(g, [t.V1, t.V2, t.V3], t);
                 }
 
                 //Fill random 4 points 
@@ -344,6 +341,11 @@ namespace MeshFiller
                 {
                     rotSurface[i, j] = Vector3.Transform(surface[i, j], rotZX);
                 }
+            }
+
+            foreach (Triangle t in mesh)
+            {
+                t.Recalculate();
             }
 
             canvas.Invalidate();
