@@ -28,13 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            components = new System.ComponentModel.Container();
             tableLayoutPanel1 = new TableLayoutPanel();
-            canvas = new PictureBox();
-            menuStrip1 = new MenuStrip();
-            loadSurfaceToolStripMenuItem = new ToolStripMenuItem();
-            loadSurfaceButton = new ToolStripMenuItem();
-            loadNormalMapButton = new ToolStripMenuItem();
             tableLayoutPanel2 = new TableLayoutPanel();
             groupBox1 = new GroupBox();
             betaLabel = new Label();
@@ -53,6 +47,7 @@
             textureRadio = new RadioButton();
             solidColorRadio = new RadioButton();
             textureSelect = new Panel();
+            normalMapSelect = new Panel();
             objectColorSelect = new Panel();
             normalMapCheckbox = new CheckBox();
             groupBox5 = new GroupBox();
@@ -68,11 +63,9 @@
             label4 = new Label();
             ksSlider = new TrackBar();
             kdSlider = new TrackBar();
-            bindingSource1 = new BindingSource(components);
-            lightColorDialog = new ColorDialog();
+            button1 = new Button();
+            canvas = new PictureBox();
             tableLayoutPanel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)canvas).BeginInit();
-            menuStrip1.SuspendLayout();
             tableLayoutPanel2.SuspendLayout();
             groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)betaSlider).BeginInit();
@@ -84,7 +77,7 @@
             ((System.ComponentModel.ISupportInitialize)mSlider).BeginInit();
             ((System.ComponentModel.ISupportInitialize)ksSlider).BeginInit();
             ((System.ComponentModel.ISupportInitialize)kdSlider).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)bindingSource1).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)canvas).BeginInit();
             SuspendLayout();
             // 
             // tableLayoutPanel1
@@ -92,74 +85,32 @@
             tableLayoutPanel1.ColumnCount = 2;
             tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
             tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 300F));
-            tableLayoutPanel1.Controls.Add(canvas, 0, 1);
-            tableLayoutPanel1.Controls.Add(menuStrip1, 0, 0);
             tableLayoutPanel1.Controls.Add(tableLayoutPanel2, 1, 0);
+            tableLayoutPanel1.Controls.Add(canvas, 0, 0);
             tableLayoutPanel1.Dock = DockStyle.Fill;
             tableLayoutPanel1.Location = new Point(0, 0);
             tableLayoutPanel1.Margin = new Padding(0);
             tableLayoutPanel1.Name = "tableLayoutPanel1";
-            tableLayoutPanel1.RowCount = 2;
-            tableLayoutPanel1.RowStyles.Add(new RowStyle());
+            tableLayoutPanel1.RowCount = 1;
             tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
             tableLayoutPanel1.Size = new Size(1084, 661);
             tableLayoutPanel1.TabIndex = 0;
-            // 
-            // canvas
-            // 
-            canvas.BackColor = Color.White;
-            canvas.Dock = DockStyle.Fill;
-            canvas.Location = new Point(0, 24);
-            canvas.Margin = new Padding(0);
-            canvas.Name = "canvas";
-            canvas.Size = new Size(784, 637);
-            canvas.TabIndex = 1;
-            canvas.TabStop = false;
-            canvas.Paint += Canvas_Paint;
-            // 
-            // menuStrip1
-            // 
-            menuStrip1.Items.AddRange(new ToolStripItem[] { loadSurfaceToolStripMenuItem });
-            menuStrip1.Location = new Point(0, 0);
-            menuStrip1.Name = "menuStrip1";
-            menuStrip1.Size = new Size(784, 24);
-            menuStrip1.TabIndex = 2;
-            menuStrip1.Text = "menuStrip1";
-            // 
-            // loadSurfaceToolStripMenuItem
-            // 
-            loadSurfaceToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { loadSurfaceButton, loadNormalMapButton });
-            loadSurfaceToolStripMenuItem.Name = "loadSurfaceToolStripMenuItem";
-            loadSurfaceToolStripMenuItem.Size = new Size(37, 20);
-            loadSurfaceToolStripMenuItem.Text = "File";
-            // 
-            // loadSurfaceButton
-            // 
-            loadSurfaceButton.Name = "loadSurfaceButton";
-            loadSurfaceButton.Size = new Size(180, 22);
-            loadSurfaceButton.Text = "Load surface";
-            loadSurfaceButton.Click += LoadSurfaceButton_Click;
-            // 
-            // loadNormalMapButton
-            // 
-            loadNormalMapButton.Name = "loadNormalMapButton";
-            loadNormalMapButton.Size = new Size(180, 22);
-            loadNormalMapButton.Text = "Load normal map";
             // 
             // tableLayoutPanel2
             // 
             tableLayoutPanel2.ColumnCount = 1;
             tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-            tableLayoutPanel2.Controls.Add(groupBox1, 0, 1);
-            tableLayoutPanel2.Controls.Add(groupBox2, 0, 2);
-            tableLayoutPanel2.Controls.Add(tableLayoutPanel3, 0, 0);
-            tableLayoutPanel2.Controls.Add(groupBox3, 0, 5);
-            tableLayoutPanel2.Controls.Add(groupBox5, 0, 3);
+            tableLayoutPanel2.Controls.Add(groupBox1, 0, 2);
+            tableLayoutPanel2.Controls.Add(groupBox2, 0, 3);
+            tableLayoutPanel2.Controls.Add(tableLayoutPanel3, 0, 1);
+            tableLayoutPanel2.Controls.Add(groupBox3, 0, 6);
+            tableLayoutPanel2.Controls.Add(groupBox5, 0, 4);
+            tableLayoutPanel2.Controls.Add(button1, 0, 0);
             tableLayoutPanel2.Dock = DockStyle.Fill;
             tableLayoutPanel2.Location = new Point(787, 3);
             tableLayoutPanel2.Name = "tableLayoutPanel2";
-            tableLayoutPanel2.RowCount = 7;
-            tableLayoutPanel1.SetRowSpan(tableLayoutPanel2, 2);
+            tableLayoutPanel2.RowCount = 8;
+            tableLayoutPanel2.RowStyles.Add(new RowStyle());
             tableLayoutPanel2.RowStyles.Add(new RowStyle());
             tableLayoutPanel2.RowStyles.Add(new RowStyle());
             tableLayoutPanel2.RowStyles.Add(new RowStyle());
@@ -178,7 +129,7 @@
             groupBox1.Controls.Add(label1);
             groupBox1.Controls.Add(betaSlider);
             groupBox1.Controls.Add(alphaSlider);
-            groupBox1.Location = new Point(3, 3);
+            groupBox1.Location = new Point(3, 32);
             groupBox1.Name = "groupBox1";
             groupBox1.Size = new Size(288, 84);
             groupBox1.TabIndex = 2;
@@ -260,7 +211,7 @@
             groupBox2.Controls.Add(triangulationCheckbox);
             groupBox2.Controls.Add(label3);
             groupBox2.Controls.Add(resolutionSlider);
-            groupBox2.Location = new Point(3, 93);
+            groupBox2.Location = new Point(3, 122);
             groupBox2.Name = "groupBox2";
             groupBox2.Size = new Size(288, 79);
             groupBox2.TabIndex = 2;
@@ -323,7 +274,7 @@
             tableLayoutPanel3.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
             tableLayoutPanel3.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
             tableLayoutPanel3.Dock = DockStyle.Fill;
-            tableLayoutPanel3.Location = new Point(0, 0);
+            tableLayoutPanel3.Location = new Point(0, 29);
             tableLayoutPanel3.Margin = new Padding(0);
             tableLayoutPanel3.Name = "tableLayoutPanel3";
             tableLayoutPanel3.RowCount = 1;
@@ -336,11 +287,12 @@
             groupBox3.Controls.Add(textureRadio);
             groupBox3.Controls.Add(solidColorRadio);
             groupBox3.Controls.Add(textureSelect);
+            groupBox3.Controls.Add(normalMapSelect);
             groupBox3.Controls.Add(objectColorSelect);
             groupBox3.Controls.Add(normalMapCheckbox);
-            groupBox3.Location = new Point(3, 332);
+            groupBox3.Location = new Point(3, 361);
             groupBox3.Name = "groupBox3";
-            groupBox3.Size = new Size(288, 95);
+            groupBox3.Size = new Size(288, 142);
             groupBox3.TabIndex = 4;
             groupBox3.TabStop = false;
             groupBox3.Text = "Object";
@@ -349,7 +301,7 @@
             // 
             textureRadio.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             textureRadio.AutoSize = true;
-            textureRadio.Location = new Point(10, 63);
+            textureRadio.Location = new Point(57, 65);
             textureRadio.Name = "textureRadio";
             textureRadio.Size = new Size(63, 19);
             textureRadio.TabIndex = 5;
@@ -363,7 +315,7 @@
             solidColorRadio.AutoSize = true;
             solidColorRadio.BackColor = Color.Transparent;
             solidColorRadio.Checked = true;
-            solidColorRadio.Location = new Point(10, 24);
+            solidColorRadio.Location = new Point(57, 27);
             solidColorRadio.Name = "solidColorRadio";
             solidColorRadio.Size = new Size(81, 19);
             solidColorRadio.TabIndex = 5;
@@ -374,20 +326,33 @@
             // 
             // textureSelect
             // 
-            textureSelect.BackColor = Color.Red;
+            textureSelect.BackColor = Color.Transparent;
             textureSelect.BackgroundImageLayout = ImageLayout.Stretch;
+            textureSelect.BorderStyle = BorderStyle.FixedSingle;
             textureSelect.Cursor = Cursors.Hand;
-            textureSelect.Location = new Point(103, 59);
+            textureSelect.Location = new Point(18, 59);
             textureSelect.Name = "textureSelect";
             textureSelect.Size = new Size(30, 30);
             textureSelect.TabIndex = 4;
             textureSelect.Click += TextureSelect_Click;
             // 
+            // normalMapSelect
+            // 
+            normalMapSelect.BackColor = Color.Transparent;
+            normalMapSelect.BackgroundImageLayout = ImageLayout.Stretch;
+            normalMapSelect.BorderStyle = BorderStyle.FixedSingle;
+            normalMapSelect.Cursor = Cursors.Hand;
+            normalMapSelect.Location = new Point(18, 106);
+            normalMapSelect.Name = "normalMapSelect";
+            normalMapSelect.Size = new Size(30, 30);
+            normalMapSelect.TabIndex = 4;
+            normalMapSelect.Click += NormalMapSelect_Click;
+            // 
             // objectColorSelect
             // 
             objectColorSelect.BackColor = Color.Red;
             objectColorSelect.Cursor = Cursors.Hand;
-            objectColorSelect.Location = new Point(103, 19);
+            objectColorSelect.Location = new Point(18, 22);
             objectColorSelect.Name = "objectColorSelect";
             objectColorSelect.Size = new Size(30, 30);
             objectColorSelect.TabIndex = 4;
@@ -397,12 +362,13 @@
             // 
             normalMapCheckbox.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             normalMapCheckbox.AutoSize = true;
-            normalMapCheckbox.Location = new Point(154, 24);
+            normalMapCheckbox.Location = new Point(57, 113);
             normalMapCheckbox.Name = "normalMapCheckbox";
-            normalMapCheckbox.Size = new Size(113, 19);
+            normalMapCheckbox.Size = new Size(93, 19);
             normalMapCheckbox.TabIndex = 0;
-            normalMapCheckbox.Text = "Use normal map";
+            normalMapCheckbox.Text = "Normal map";
             normalMapCheckbox.UseVisualStyleBackColor = true;
+            normalMapCheckbox.CheckedChanged += NormalMapCheckbox_CheckedChanged;
             // 
             // groupBox5
             // 
@@ -418,7 +384,7 @@
             groupBox5.Controls.Add(label4);
             groupBox5.Controls.Add(ksSlider);
             groupBox5.Controls.Add(kdSlider);
-            groupBox5.Location = new Point(3, 178);
+            groupBox5.Location = new Point(3, 207);
             groupBox5.Name = "groupBox5";
             groupBox5.Size = new Size(288, 148);
             groupBox5.TabIndex = 6;
@@ -483,9 +449,9 @@
             label5.BackColor = Color.Transparent;
             label5.Location = new Point(54, 116);
             label5.Name = "label5";
-            label5.Size = new Size(36, 15);
+            label5.Size = new Size(64, 15);
             label5.TabIndex = 2;
-            label5.Text = "Color";
+            label5.Text = "Light color";
             // 
             // label11
             // 
@@ -563,22 +529,39 @@
             kdSlider.Value = 90;
             kdSlider.Scroll += LightingSlider_Scroll;
             // 
+            // button1
+            // 
+            button1.Location = new Point(3, 3);
+            button1.Name = "button1";
+            button1.Size = new Size(120, 23);
+            button1.TabIndex = 7;
+            button1.Text = "Load surface";
+            button1.UseVisualStyleBackColor = true;
+            button1.Click += LoadSurfaceButton_Click;
+            // 
+            // canvas
+            // 
+            canvas.BackColor = Color.White;
+            canvas.Dock = DockStyle.Fill;
+            canvas.Location = new Point(0, 0);
+            canvas.Margin = new Padding(0);
+            canvas.Name = "canvas";
+            canvas.Size = new Size(784, 661);
+            canvas.TabIndex = 1;
+            canvas.TabStop = false;
+            canvas.Paint += Canvas_Paint;
+            // 
             // MainWindow
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1084, 661);
             Controls.Add(tableLayoutPanel1);
-            MainMenuStrip = menuStrip1;
             MinimumSize = new Size(600, 400);
             Name = "MainWindow";
             Text = "MeshFiller";
             Resize += MainWindow_Resize;
             tableLayoutPanel1.ResumeLayout(false);
-            tableLayoutPanel1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)canvas).EndInit();
-            menuStrip1.ResumeLayout(false);
-            menuStrip1.PerformLayout();
             tableLayoutPanel2.ResumeLayout(false);
             tableLayoutPanel2.PerformLayout();
             groupBox1.ResumeLayout(false);
@@ -595,53 +578,49 @@
             ((System.ComponentModel.ISupportInitialize)mSlider).EndInit();
             ((System.ComponentModel.ISupportInitialize)ksSlider).EndInit();
             ((System.ComponentModel.ISupportInitialize)kdSlider).EndInit();
-            ((System.ComponentModel.ISupportInitialize)bindingSource1).EndInit();
+            ((System.ComponentModel.ISupportInitialize)canvas).EndInit();
             ResumeLayout(false);
         }
 
         #endregion
 
         private TableLayoutPanel tableLayoutPanel1;
-        private TableLayoutPanel tableLayoutPanel2;
-        private TrackBar alphaSlider;
         private PictureBox canvas;
+        private TrackBar trackBar2;
+        private TableLayoutPanel tableLayoutPanel2;
         private GroupBox groupBox1;
+        private Label betaLabel;
+        private Label alphaLabel;
         private Label label2;
         private Label label1;
         private TrackBar betaSlider;
-        private Label betaLabel;
-        private Label alphaLabel;
+        private TrackBar alphaSlider;
         private GroupBox groupBox2;
-        private TableLayoutPanel tableLayoutPanel3;
-        private GroupBox groupBox3;
-        private CheckBox normalMapCheckbox;
-        private CheckBox triangulationCheckbox;
-        private TrackBar mSlider;
-        private Label mLabel;
-        private TrackBar kdSlider;
-        private Label kdLabel;
-        private MenuStrip menuStrip1;
-        private ToolStripMenuItem loadSurfaceToolStripMenuItem;
-        private ToolStripMenuItem loadSurfaceButton;
-        private ToolStripMenuItem loadNormalMapButton;
-        private GroupBox groupBox5;
-        private Label label4;
-        private Label ksLabel;
-        private Label label11;
-        private Label label9;
-        private TrackBar ksSlider;
-        private TrackBar trackBar2;
         private Label resolutionLabel;
+        private CheckBox triangulationCheckbox;
         private Label label3;
         private TrackBar resolutionSlider;
-        private Panel lightColorSelect;
+        private TableLayoutPanel tableLayoutPanel3;
+        private GroupBox groupBox3;
         private RadioButton textureRadio;
         private RadioButton solidColorRadio;
-        private Panel objectColorSelect;
-        private Label label5;
-        private BindingSource bindingSource1;
-        private CheckBox lightAnimationCheckbox;
-        private ColorDialog lightColorDialog;
         private Panel textureSelect;
+        private Panel normalMapSelect;
+        private Panel objectColorSelect;
+        private CheckBox normalMapCheckbox;
+        private GroupBox groupBox5;
+        private CheckBox lightAnimationCheckbox;
+        private Panel lightColorSelect;
+        private Label mLabel;
+        private Label ksLabel;
+        private Label kdLabel;
+        private Label label5;
+        private Label label11;
+        private TrackBar mSlider;
+        private Label label9;
+        private Label label4;
+        private TrackBar ksSlider;
+        private TrackBar kdSlider;
+        private Button button1;
     }
 }

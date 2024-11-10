@@ -132,14 +132,9 @@ namespace MeshFiller
                 {
                     renderer.FillPolygon(g, [t.V1, t.V2, t.V3]);
                 }
-                // generate random 4 points and fill them
-                //renderer.FillPolygon(g, [mesh[2].V1, mesh[40].V2, mesh[23].V3, mesh[88].V3, mesh[100].V3]);
 
-                //Triangle x = mesh[0];
-                //Scanline.FillPolygon(g, [x.V1, x.V2, x.V3]);
-                //g.FillEllipse(Brushes.Red, x.V1.RotP.X - vertexRadius / 2, x.V1.RotP.Y - vertexRadius / 2, vertexRadius, vertexRadius);
-                //g.FillEllipse(Brushes.Red, x.V2.RotP.X - vertexRadius / 2, x.V2.RotP.Y - vertexRadius / 2, vertexRadius, vertexRadius);
-                //g.FillEllipse(Brushes.Red, x.V3.RotP.X - vertexRadius / 2, x.V3.RotP.Y - vertexRadius / 2, vertexRadius, vertexRadius);
+                //Fill random 4 points 
+                //renderer.FillPolygon(g, [mesh[2].V1, mesh[40].V2, mesh[23].V3, mesh[88].V3, mesh[100].V3]);
             }
         }
 
@@ -354,11 +349,6 @@ namespace MeshFiller
             canvas.Invalidate();
         }
 
-        private void button3_Click(object sender, EventArgs e)
-        {
-            ToggleAnimation();
-        }
-
         private void LoadSurfaceButton_Click(object sender, EventArgs e)
         {
             using OpenFileDialog openFileDialog = new();
@@ -425,6 +415,7 @@ namespace MeshFiller
 
         private (Vector3, Color) OpenColorDialog()
         {
+            using ColorDialog lightColorDialog = new();
             lightColorDialog.ShowDialog();
             Color color = lightColorDialog.Color;
             Vector3 rgb = new(color.R / 255.0f, color.G / 255.0f, color.B / 255.0f);
@@ -449,47 +440,105 @@ namespace MeshFiller
             canvas.Invalidate();
         }
 
-        private void LoadTexture()
+        private static Bitmap? LoadImage()
         {
             using OpenFileDialog openFileDialog = new();
             openFileDialog.Filter = "Image files (*.png;*.jpg;*.jpeg;*.bmp)|*.png;*.jpg;*.jpeg;*.bmp|All files (*.*)|*.*";
-            if (openFileDialog.ShowDialog() == DialogResult.OK)
+
+            if (openFileDialog.ShowDialog() != DialogResult.OK)
+                return null;
+
+            Bitmap bitmap;
+            try
             {
-                try
-                {
-                    renderer.texture = new Bitmap(openFileDialog.FileName);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Error loading texture: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-
-                if (renderer.texture.Width < 2 || renderer.texture.Height < 2)
-                {
-                    MessageBox.Show("Texture must be at least 2x2 pixels.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-
-                textureSelect.BackgroundImage = renderer.texture;
-
-                renderer.UseTexture = true;
-                textureRadio.Checked = true;
-                canvas.Invalidate();
+                bitmap = new Bitmap(openFileDialog.FileName);
             }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error loading image: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return null;
+            }
+
+            if (bitmap.Width < 2 || bitmap.Height < 2)
+            {
+                MessageBox.Show("Image must be at least 2x2 pixels.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return null;
+            }
+
+            return bitmap;
+        }
+
+        private bool LoadTexture()
+        {
+            Bitmap? bitmap = LoadImage();
+            if (bitmap == null)
+                return false;
+
+            renderer.Texture?.Dispose();
+            renderer.UseTexture = true;
+            renderer.Texture = bitmap;
+            textureSelect.BackgroundImage = bitmap;
+            textureRadio.Checked = true;
+
+            canvas.Invalidate();
+            return true;
         }
 
         private void UseTextureRadio_CheckedChanged(object sender, EventArgs e)
         {
+            if (textureRadio.Checked && renderer.Texture == null)
+            {
+                if (!LoadTexture())
+                {
+                    solidColorRadio.Checked = true;
+                    return;
+                }
+            }
+
             renderer.UseTexture = !solidColorRadio.Checked;
-            if (renderer.UseTexture && renderer.texture == null)
-                LoadTexture();
+            canvas.Invalidate();
+        }
+
+
+        private bool LoadNormalMap()
+        {
+            Bitmap? bitmap = LoadImage();
+            if (bitmap == null)
+                return false;
+
+            renderer.NormalMap?.Dispose();
+            renderer.UseNormalMap = true;
+            renderer.NormalMap = bitmap;
+            normalMapSelect.BackgroundImage = bitmap;
+            normalMapCheckbox.Checked = true;
+
+            canvas.Invalidate();
+            return true;
+        }
+
+        private void NormalMapCheckbox_CheckedChanged(object sender, EventArgs e)
+        {
+            if (normalMapCheckbox.Checked && renderer.NormalMap == null)
+            {
+                if (!LoadNormalMap())
+                {
+                    normalMapCheckbox.Checked = false;
+                    return;
+                }
+            }
+
+            renderer.UseNormalMap = normalMapCheckbox.Checked;
             canvas.Invalidate();
         }
 
         private void TextureSelect_Click(object sender, EventArgs e)
         {
             LoadTexture();
+        }
+
+        private void NormalMapSelect_Click(object sender, EventArgs e)
+        {
+            LoadNormalMap();
         }
     }
 }

@@ -4,18 +4,20 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Numerics;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 
 namespace MeshFiller.Classes
 {
-    public class Renderer()
+    public class Renderer
     {
         public float kd { get; set; }
         public float ks { get; set; }
         public float m { get; set; }
 
         public bool UseTexture { get; set; }
-        public Bitmap texture { get; set; }
+        public Bitmap? Texture { get; set; }
+
+        public bool UseNormalMap { get; set; }
+        public Bitmap? NormalMap { get; set; }
 
         public Vector3 LightColor { get; set; } = new(1, 1, 1);
         public Vector3 ObjectColor { get; set; } = new(1, 0, 0);
@@ -120,7 +122,14 @@ namespace MeshFiller.Classes
                         float u = Math.Clamp(alpha * V0.u + beta * V1.u + gamma * V2.u, 0, 1);
                         float v = Math.Clamp(alpha * V0.v + beta * V1.v + gamma * V2.v, 0, 1);
 
-                        DrawPixel(g, x, y, u, v, interpolatedNormal);
+                        Vector3 Pu = alpha * V0.RotPu + beta * V1.RotPu + gamma * V2.RotPu;
+                        Vector3 Pv = alpha * V0.RotPv + beta * V1.RotPv + gamma * V2.RotPv;
+                        Pu = Vector3.Normalize(Pu);
+                        Pv = Vector3.Normalize(Pv);
+
+                        Vector3 normal = GetNormal(u, v, interpolatedNormal, Pu, Pv);
+
+                        DrawPixel(g, x, y, u, v, normal);
                     }
                 }
 
@@ -160,14 +169,34 @@ namespace MeshFiller.Classes
             if (!UseTexture)
                 return ObjectColor;
 
-            int x = (int)(v * (texture.Width - 1));
-            int y = (int)(u * (texture.Height - 1)); // Flip v to match image coordinate system
+            int x = (int)(v * (Texture.Width - 1));
+            int y = (int)(u * (Texture.Height - 1));
 
-            // Get the color at the (x, y) position
-            Color color = texture.GetPixel(x, y);
+            Color color = Texture.GetPixel(x, y);
 
-            // Convert color to Vector3 (normalize RGB values to 0-1 range)
             return new Vector3(color.R / 255f, color.G / 255f, color.B / 255f);
+        }
+
+        private Vector3 GetNormal(float u, float v, Vector3 normal, Vector3 tangentU, Vector3 tangentV)
+        {
+            if (!UseNormalMap)
+                return normal;
+
+            int x = (int)(v * (NormalMap.Width - 1));
+            int y = (int)(u * (NormalMap.Height - 1));
+
+            Color color = NormalMap.GetPixel(x, y);
+
+            Vector3 normalMap = new(
+                color.R / 255f * 2 - 1,
+                color.G / 255f * 2 - 1,
+                color.B / 255f * 2 - 1
+            );
+
+            // M = [Pu, Pv, N]
+            Matrix3x3 M = new(tangentU, tangentV, normal);
+
+            return Vector3.Normalize(M * normalMap);
         }
 
         private void DrawPixel(Graphics g, int x, int y, float u, float v, Vector3 normal)
@@ -195,5 +224,26 @@ namespace MeshFiller.Classes
             g.FillRectangle(new SolidBrush(finalColor), x, y, 1, 1);
         }
 
+    }
+
+    public struct Matrix3x3
+    {
+        private Vector3 row1, row2, row3;
+
+        public Matrix3x3(Vector3 col1, Vector3 col2, Vector3 col3)
+        {
+            row1 = new Vector3(col1.X, col2.X, col3.X);
+            row2 = new Vector3(col1.Y, col2.Y, col3.Y);
+            row3 = new Vector3(col1.Z, col2.Z, col3.Z);
+        }
+
+        public static Vector3 operator *(Matrix3x3 matrix, Vector3 vec)
+        {
+            return new Vector3(
+                Vector3.Dot(matrix.row1, vec),
+                Vector3.Dot(matrix.row2, vec),
+                Vector3.Dot(matrix.row3, vec)
+            );
+        }
     }
 }
