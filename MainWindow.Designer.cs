@@ -401,6 +401,7 @@
             lightAnimationCheckbox.TabIndex = 5;
             lightAnimationCheckbox.Text = "Animation";
             lightAnimationCheckbox.UseVisualStyleBackColor = true;
+            lightAnimationCheckbox.CheckedChanged += lightAnimationCheckbox_CheckedChanged;
             // 
             // lightColorSelect
             // 

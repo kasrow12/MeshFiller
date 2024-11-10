@@ -36,6 +36,7 @@ namespace MeshFiller
         public MainWindow()
         {
             InitializeComponent();
+            bitmap = new DirectBitmap(canvas.Width, canvas.Height, canvas.Width / 2, canvas.Height / 2);
 
             AngleSlider_Scroll(null, null);
             ResolutionSlider_Scroll(null, null);
@@ -47,53 +48,16 @@ namespace MeshFiller
         private void SetupTimer()
         {
             animationTimer = new System.Windows.Forms.Timer();
-            animationTimer.Interval = 4;
+            animationTimer.Interval = 1;
             animationTimer.Tick += AnimationTimer_Tick;
         }
 
         private void AnimationTimer_Tick(object sender, EventArgs e)
         {
-            if (alphaIncreasing)
-            {
-                alpha += ALPHA_SPEED;
-                if (alpha >= 90.0f)
-                {
-                    alpha = 90.0f;
-                    alphaIncreasing = false;
-                }
-            }
-            else
-            {
-                alpha -= ALPHA_SPEED;
-                if (alpha <= -90.0f)
-                {
-                    alpha = -90.0f;
-                    alphaIncreasing = true;
-                }
-            }
-
-            if (betaIncreasing)
-            {
-                beta += BETA_SPEED;
-                if (beta >= 60.0f)
-                {
-                    beta = 60.0f;
-                    betaIncreasing = false;
-                }
-            }
-            else
-            {
-                beta -= BETA_SPEED;
-                if (beta <= 50.0f)
-                {
-                    beta = 50.0f;
-                    betaIncreasing = true;
-                }
-            }
-
-            alphaSlider.Value = (int)(alpha * 10);
-            betaSlider.Value = (int)(beta * 10);
-            UpdateRotation();
+            // animate renderer.LightDirection ¯ród³o œwiat³a - animacja ruchu po okregu na pewnej p³aszczyŸnie z=const (z - suwak)
+            float angle = 0.03f;
+            renderer.LightDirection = Vector3.Transform(renderer.LightDirection, Quaternion.CreateFromAxisAngle(Vector3.UnitZ, angle));
+            canvas.Invalidate();
         }
 
         private void ToggleAnimation()
@@ -108,7 +72,6 @@ namespace MeshFiller
         {
             if (surface == null || mesh == null || mesh.Count == 0)
                 return;
-
 
             if (triangulationVisible)
             {
@@ -133,15 +96,14 @@ namespace MeshFiller
                 //    g.DrawLine(Pens.Blue, p.X, p.Y, p.X + vertex.RotN.X * 20, p.Y + vertex.RotN.Y * 20);
                 //}
 
-                bitmap?.Dispose();
-                bitmap = new DirectBitmap(canvas.Width, canvas.Height, canvas.Width / 2, canvas.Height / 2);
-
-                foreach (Triangle t in mesh)
+                bitmap.Clear(Color.White);
+                Parallel.ForEach(mesh, t =>
                 {
                     renderer.FillPolygon(bitmap, [t.V1, t.V2, t.V3], t);
-                }
+                });
 
                 e.Graphics.DrawImage(bitmap.Bitmap, 0, 0);
+
                 //Fill random 4 points 
                 //renderer.FillPolygon(g, [mesh[2].V1, mesh[40].V2, mesh[23].V3, mesh[88].V3, mesh[100].V3]);
             }
@@ -378,6 +340,8 @@ namespace MeshFiller
 
         private void MainWindow_Resize(object sender, EventArgs e)
         {
+            bitmap?.Dispose();
+            bitmap = new DirectBitmap(canvas.Width, canvas.Height, canvas.Width / 2, canvas.Height / 2);
             canvas.Invalidate();
         }
 
@@ -553,6 +517,11 @@ namespace MeshFiller
         private void NormalMapSelect_Click(object sender, EventArgs e)
         {
             LoadNormalMap();
+        }
+
+        private void lightAnimationCheckbox_CheckedChanged(object sender, EventArgs e)
+        {
+            ToggleAnimation();
         }
     }
 }

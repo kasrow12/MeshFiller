@@ -16,7 +16,7 @@ namespace MeshFiller.Classes
 
         public Vector3 LightColor { get; set; } = new(1, 1, 1);
         public Vector3 ObjectColor { get; set; } = new(1, 0, 0);
-        public Vector3 LightDirection { get; set; } = Vector3.Normalize(new Vector3(0, -1, 1));
+        public Vector3 LightDirection { get; set; } = Vector3.Normalize(new Vector3(0, -2, 1));
 
         private Vector3 V = new(0, 0, 1);
 
@@ -165,10 +165,13 @@ namespace MeshFiller.Classes
             if (!UseTexture || Texture is null)
                 return ObjectColor;
 
-            int x = (int)(v * (Texture.Width - 1));
-            int y = (int)(u * (Texture.Height - 1));
-
-            Color color = Texture.GetPixel(x, y);
+            Color color;
+            lock (Texture)
+            {
+                int x = (int)(v * (Texture.Width - 1));
+                int y = (int)(u * (Texture.Height - 1));
+                color = Texture.GetPixel(x, y);
+            }
 
             return new Vector3(color.R / 255f, color.G / 255f, color.B / 255f);
         }
@@ -179,10 +182,13 @@ namespace MeshFiller.Classes
             if (!UseNormalMap || NormalMap is null)
                 return normal;
 
-            int x = (int)(v * (NormalMap.Width - 1));
-            int y = (int)(u * (NormalMap.Height - 1));
-
-            Color color = NormalMap.GetPixel(x, y);
+            Color color;
+            lock (NormalMap)
+            {
+                int x = (int)(v * (NormalMap.Width - 1));
+                int y = (int)(u * (NormalMap.Height - 1));
+                color = NormalMap.GetPixel(x, y);
+            }
 
             Vector3 normalMap = new(
                 color.R / 255f * 2 - 1,

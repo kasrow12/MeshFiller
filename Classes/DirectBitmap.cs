@@ -34,7 +34,7 @@ namespace MeshFiller.Classes
         public void SetPixel(int x, int y, Color color)
         {
             int newX = x + ChangeX;
-            int newY = y + ChangeY;
+            int newY = ChangeY - y;
             int index = newX + (newY * Width);
 
             if (newX < 0 || newX >= Width || newY < 0 || newY >= Height)
@@ -42,6 +42,14 @@ namespace MeshFiller.Classes
 
             int col = color.ToArgb();
             Bits[index] = col;
+        }
+
+        public void Clear(Color color)
+        {
+            int col = color.ToArgb();
+
+            for (int i = 0; i < Bits.Length; i++)
+                Bits[i] = col;
         }
 
         public void Dispose()
