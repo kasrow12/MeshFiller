@@ -42,7 +42,7 @@ namespace MeshFiller.Classes
             }
         }
 
-        public void FillPolygon(Graphics g, List<Vertex> vertices, Triangle t)
+        public void FillPolygon(DirectBitmap bitmap, List<Vertex> vertices, Triangle t)
         {
             // Sort vertices by Y
             List<int> ind = Enumerable.Range(0, vertices.Count).ToList();
@@ -87,7 +87,7 @@ namespace MeshFiller.Classes
                     for (int x = x1; x <= x2; x++)
                     {
                         // for triangles
-                        FillPixel(g, t, x, y);
+                        FillPixel(bitmap, t, x, y);
                     }
                 }
 
@@ -100,7 +100,7 @@ namespace MeshFiller.Classes
         }
 
         // Fill pixel based on barycentric coordinates
-        private void FillPixel(Graphics g, Triangle t, int x, int y)
+        private void FillPixel(DirectBitmap bitmap, Triangle t, int x, int y)
         {
             (float a, float b, float c) = Barycentric2(new Vector2(x, y), t);
 
@@ -121,7 +121,7 @@ namespace MeshFiller.Classes
             Vector3 normal = Vector3.Normalize(a * t.V1.RotN + b * t.V2.RotN + c * t.V3.RotN);
             normal = GetNormalMap(u, v, normal, t, a, b, c);
 
-            DrawPixel(g, x, y, u, v, normal);
+            DrawPixel(bitmap, x, y, u, v, normal);
         }
 
         // https://gamedev.stackexchange.com/questions/23743/whats-the-most-efficient-way-to-find-barycentric-coordinates
@@ -200,7 +200,7 @@ namespace MeshFiller.Classes
         }
 
         // Draw pixel with Lambert shading
-        private void DrawPixel(Graphics g, int x, int y, float u, float v, Vector3 normal)
+        private void DrawPixel(DirectBitmap bitmap, int x, int y, float u, float v, Vector3 normal)
         {
             float NdotL = Vector3.Dot(normal, LightDirection);
             float cosNL = Math.Max(NdotL, 0); // cos >= 0
@@ -223,7 +223,7 @@ namespace MeshFiller.Classes
                 (int)(color.Z * 255)
             );
 
-            g.FillRectangle(new SolidBrush(finalColor), x, y, 1, 1);
+            bitmap.SetPixel(x, y, finalColor);
         }
     }
 }

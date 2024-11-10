@@ -6,6 +6,8 @@ namespace MeshFiller
 {
     public partial class MainWindow : Form
     {
+        public DirectBitmap bitmap;
+
         public Vector3[,] surface;
         public Vector3[,] rotSurface = new Vector3[4, 4];
         public Vertex[,] vertices;
@@ -18,7 +20,7 @@ namespace MeshFiller
         public int resolution;
 
         private bool triangulationVisible = false;
-        private Pen trianglePen = Pens.Blue;
+        private readonly Pen trianglePen = Pens.Blue;
 
         public const int vertexRadius = 10;
 
@@ -27,6 +29,9 @@ namespace MeshFiller
         private bool betaIncreasing = true;
         private const float ALPHA_SPEED = 0.5f;
         private const float BETA_SPEED = 0.1f;
+
+        private const float scale = 1;
+        private const float scaleZ = 1;
 
         public MainWindow()
         {
@@ -104,12 +109,15 @@ namespace MeshFiller
             if (surface == null || mesh == null || mesh.Count == 0)
                 return;
 
-            Graphics g = e.Graphics;
-            g.ScaleTransform(1, -1);
-            g.TranslateTransform(canvas.Width / 2, -canvas.Height / 2);
 
             if (triangulationVisible)
+            {
+                Graphics g = e.Graphics;
+                g.ScaleTransform(1, -1);
+                g.TranslateTransform(canvas.Width / 2, -canvas.Height / 2);
+
                 DrawTriangulation(g);
+            }
             else
             {
                 // DEBUG
@@ -125,11 +133,15 @@ namespace MeshFiller
                 //    g.DrawLine(Pens.Blue, p.X, p.Y, p.X + vertex.RotN.X * 20, p.Y + vertex.RotN.Y * 20);
                 //}
 
+                bitmap?.Dispose();
+                bitmap = new DirectBitmap(canvas.Width, canvas.Height, canvas.Width / 2, canvas.Height / 2);
+
                 foreach (Triangle t in mesh)
                 {
-                    renderer.FillPolygon(g, [t.V1, t.V2, t.V3], t);
+                    renderer.FillPolygon(bitmap, [t.V1, t.V2, t.V3], t);
                 }
 
+                e.Graphics.DrawImage(bitmap.Bitmap, 0, 0);
                 //Fill random 4 points 
                 //renderer.FillPolygon(g, [mesh[2].V1, mesh[40].V2, mesh[23].V3, mesh[88].V3, mesh[100].V3]);
             }
@@ -185,9 +197,9 @@ namespace MeshFiller
                     if (tokens.Length != 3)
                         throw new Exception("Each line must contain exactly 3 values (x, y, z).");
 
-                    float x = float.Parse(tokens[0], CultureInfo.InvariantCulture);
-                    float y = float.Parse(tokens[1], CultureInfo.InvariantCulture);
-                    float z = float.Parse(tokens[2], CultureInfo.InvariantCulture);
+                    float x = float.Parse(tokens[0], CultureInfo.InvariantCulture) * scale;
+                    float y = float.Parse(tokens[1], CultureInfo.InvariantCulture) * scale;
+                    float z = float.Parse(tokens[2], CultureInfo.InvariantCulture) * scaleZ;
 
                     surface[i / 4, i % 4] = new(x, y, z);
                 }
