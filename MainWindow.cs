@@ -1,4 +1,5 @@
 using MeshFiller.Classes;
+using System.Drawing.Imaging;
 using System.Globalization;
 using System.Numerics;
 
@@ -452,9 +453,8 @@ namespace MeshFiller
             if (bitmap == null)
                 return false;
 
-            renderer.Texture?.Dispose();
             renderer.UseTexture = true;
-            renderer.Texture = bitmap;
+            renderer.Texture = LoadBitmapToColorArray(bitmap);
             textureSelect.BackgroundImage = bitmap;
             textureRadio.Checked = true;
 
@@ -477,6 +477,42 @@ namespace MeshFiller
             canvas.Invalidate();
         }
 
+        public static Color[,] LoadBitmapToColorArray(Bitmap bitmap)
+        {
+            int width = bitmap.Width;
+            int height = bitmap.Height;
+
+            Color[,] colorArray = new Color[width, height];
+
+            BitmapData bmpData = bitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, bitmap.PixelFormat);
+
+            // Calculate the number of bytes in the bitmap.
+            int bytesPerPixel = Image.GetPixelFormatSize(bitmap.PixelFormat) / 8;
+            int byteCount = bmpData.Stride * height;
+            byte[] pixelData = new byte[byteCount];
+
+            System.Runtime.InteropServices.Marshal.Copy(bmpData.Scan0, pixelData, 0, byteCount);
+
+            bitmap.UnlockBits(bmpData);
+
+            Parallel.For(0, height, y =>
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    int pixelIndex = y * bmpData.Stride + x * bytesPerPixel;
+
+                    byte b = pixelData[pixelIndex];
+                    byte g = pixelData[pixelIndex + 1];
+                    byte r = pixelData[pixelIndex + 2];
+                    byte a = bytesPerPixel == 4 ? pixelData[pixelIndex + 3] : (byte)255;
+
+                    colorArray[x, y] = Color.FromArgb(a, r, g, b);
+                }
+            });
+
+            return colorArray;
+        }
+
 
         private bool LoadNormalMap()
         {
@@ -484,9 +520,8 @@ namespace MeshFiller
             if (bitmap == null)
                 return false;
 
-            renderer.NormalMap?.Dispose();
             renderer.UseNormalMap = true;
-            renderer.NormalMap = bitmap;
+            renderer.NormalMap = LoadBitmapToColorArray(bitmap);
             normalMapSelect.BackgroundImage = bitmap;
             normalMapCheckbox.Checked = true;
 
