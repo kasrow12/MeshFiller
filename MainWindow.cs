@@ -492,23 +492,39 @@ namespace MeshFiller
             byte[] pixelData = new byte[byteCount];
 
             System.Runtime.InteropServices.Marshal.Copy(bmpData.Scan0, pixelData, 0, byteCount);
-
             bitmap.UnlockBits(bmpData);
 
-            Parallel.For(0, height, y =>
+            if (bmpData.PixelFormat == PixelFormat.Format8bppIndexed)
             {
-                for (int x = 0; x < width; x++)
+                ColorPalette palette = bitmap.Palette;
+
+                Parallel.For(0, height, y =>
                 {
-                    int pixelIndex = y * bmpData.Stride + x * bytesPerPixel;
+                    for (int x = 0; x < width; x++)
+                    {
+                        int pixelIndex = y * bmpData.Stride + x;
+                        byte paletteIndex = pixelData[pixelIndex];
+                        colorArray[x, y] = palette.Entries[paletteIndex];
+                    }
+                });
+            }
+            else
+            {
+                Parallel.For(0, height, y =>
+                {
+                    for (int x = 0; x < width; x++)
+                    {
+                        int pixelIndex = y * bmpData.Stride + x * bytesPerPixel;
 
-                    byte b = pixelData[pixelIndex];
-                    byte g = pixelData[pixelIndex + 1];
-                    byte r = pixelData[pixelIndex + 2];
-                    byte a = bytesPerPixel == 4 ? pixelData[pixelIndex + 3] : (byte)255;
+                        byte b = pixelData[pixelIndex];
+                        byte g = pixelData[pixelIndex + 1];
+                        byte r = pixelData[pixelIndex + 2];
+                        byte a = bytesPerPixel == 4 ? pixelData[pixelIndex + 3] : (byte)255;
 
-                    colorArray[x, y] = Color.FromArgb(a, r, g, b);
-                }
-            });
+                        colorArray[x, y] = Color.FromArgb(a, r, g, b);
+                    }
+                });
+            }
 
             return colorArray;
         }

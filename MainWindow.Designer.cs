@@ -84,7 +84,7 @@
             // 
             tableLayoutPanel1.ColumnCount = 2;
             tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 343F));
+            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 300F));
             tableLayoutPanel1.Controls.Add(tableLayoutPanel2, 1, 0);
             tableLayoutPanel1.Controls.Add(canvas, 0, 0);
             tableLayoutPanel1.Dock = DockStyle.Fill;
@@ -93,7 +93,7 @@
             tableLayoutPanel1.Name = "tableLayoutPanel1";
             tableLayoutPanel1.RowCount = 1;
             tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-            tableLayoutPanel1.Size = new Size(1239, 881);
+            tableLayoutPanel1.Size = new Size(1084, 661);
             tableLayoutPanel1.TabIndex = 0;
             // 
             // tableLayoutPanel2
@@ -107,8 +107,7 @@
             tableLayoutPanel2.Controls.Add(groupBox5, 0, 4);
             tableLayoutPanel2.Controls.Add(button1, 0, 0);
             tableLayoutPanel2.Dock = DockStyle.Fill;
-            tableLayoutPanel2.Location = new Point(899, 4);
-            tableLayoutPanel2.Margin = new Padding(3, 4, 3, 4);
+            tableLayoutPanel2.Location = new Point(787, 3);
             tableLayoutPanel2.Name = "tableLayoutPanel2";
             tableLayoutPanel2.RowCount = 8;
             tableLayoutPanel2.RowStyles.Add(new RowStyle());
@@ -118,8 +117,8 @@
             tableLayoutPanel2.RowStyles.Add(new RowStyle());
             tableLayoutPanel2.RowStyles.Add(new RowStyle());
             tableLayoutPanel2.RowStyles.Add(new RowStyle());
-            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Absolute, 27F));
-            tableLayoutPanel2.Size = new Size(337, 873);
+            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
+            tableLayoutPanel2.Size = new Size(294, 655);
             tableLayoutPanel2.TabIndex = 0;
             // 
             // groupBox1
@@ -130,11 +129,9 @@
             groupBox1.Controls.Add(label2);
             groupBox1.Controls.Add(label1);
             groupBox1.Controls.Add(betaSlider);
-            groupBox1.Location = new Point(3, 43);
-            groupBox1.Margin = new Padding(3, 4, 3, 4);
+            groupBox1.Location = new Point(3, 32);
             groupBox1.Name = "groupBox1";
-            groupBox1.Padding = new Padding(3, 4, 3, 4);
-            groupBox1.Size = new Size(329, 112);
+            groupBox1.Size = new Size(288, 84);
             groupBox1.TabIndex = 2;
             groupBox1.TabStop = false;
             groupBox1.Text = "Rotation";
@@ -143,10 +140,10 @@
             // 
             alphaLabel.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             alphaLabel.BackColor = Color.Transparent;
-            alphaLabel.Location = new Point(275, 28);
+            alphaLabel.Location = new Point(241, 21);
             alphaLabel.Margin = new Padding(0);
             alphaLabel.Name = "alphaLabel";
-            alphaLabel.Size = new Size(50, 20);
+            alphaLabel.Size = new Size(44, 15);
             alphaLabel.TabIndex = 3;
             // 
             // alphaSlider
@@ -154,12 +151,11 @@
             alphaSlider.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             alphaSlider.AutoSize = false;
             alphaSlider.LargeChange = 100;
-            alphaSlider.Location = new Point(59, 27);
-            alphaSlider.Margin = new Padding(3, 4, 3, 4);
+            alphaSlider.Location = new Point(52, 20);
             alphaSlider.Maximum = 900;
             alphaSlider.Minimum = -900;
             alphaSlider.Name = "alphaSlider";
-            alphaSlider.Size = new Size(219, 36);
+            alphaSlider.Size = new Size(192, 27);
             alphaSlider.SmallChange = 10;
             alphaSlider.TabIndex = 0;
             alphaSlider.TickStyle = TickStyle.None;
@@ -169,19 +165,19 @@
             // 
             betaLabel.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             betaLabel.BackColor = Color.Transparent;
-            betaLabel.Location = new Point(275, 73);
+            betaLabel.Location = new Point(241, 55);
             betaLabel.Margin = new Padding(0);
             betaLabel.Name = "betaLabel";
-            betaLabel.Size = new Size(50, 20);
+            betaLabel.Size = new Size(44, 15);
             betaLabel.TabIndex = 3;
             // 
             // label2
             // 
             label2.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             label2.AutoSize = true;
-            label2.Location = new Point(21, 73);
+            label2.Location = new Point(18, 55);
             label2.Name = "label2";
-            label2.Size = new Size(39, 20);
+            label2.Size = new Size(30, 15);
             label2.TabIndex = 2;
             label2.Text = "Beta";
             // 
@@ -189,9 +185,9 @@
             // 
             label1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             label1.AutoSize = true;
-            label1.Location = new Point(11, 28);
+            label1.Location = new Point(10, 21);
             label1.Name = "label1";
-            label1.Size = new Size(48, 20);
+            label1.Size = new Size(38, 15);
             label1.TabIndex = 2;
             label1.Text = "Alpha";
             // 
@@ -200,11 +196,10 @@
             betaSlider.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             betaSlider.AutoSize = false;
             betaSlider.LargeChange = 10;
-            betaSlider.Location = new Point(59, 71);
-            betaSlider.Margin = new Padding(3, 4, 3, 4);
+            betaSlider.Location = new Point(52, 53);
             betaSlider.Maximum = 1200;
             betaSlider.Name = "betaSlider";
-            betaSlider.Size = new Size(219, 31);
+            betaSlider.Size = new Size(192, 23);
             betaSlider.SmallChange = 5;
             betaSlider.TabIndex = 0;
             betaSlider.TickStyle = TickStyle.None;
@@ -216,11 +211,9 @@
             groupBox2.Controls.Add(triangulationCheckbox);
             groupBox2.Controls.Add(label3);
             groupBox2.Controls.Add(resolutionSlider);
-            groupBox2.Location = new Point(3, 163);
-            groupBox2.Margin = new Padding(3, 4, 3, 4);
+            groupBox2.Location = new Point(3, 122);
             groupBox2.Name = "groupBox2";
-            groupBox2.Padding = new Padding(3, 4, 3, 4);
-            groupBox2.Size = new Size(329, 105);
+            groupBox2.Size = new Size(288, 79);
             groupBox2.TabIndex = 2;
             groupBox2.TabStop = false;
             groupBox2.Text = "Triangulation";
@@ -229,20 +222,19 @@
             // 
             resolutionLabel.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             resolutionLabel.BackColor = Color.Transparent;
-            resolutionLabel.Location = new Point(275, 67);
+            resolutionLabel.Location = new Point(241, 50);
             resolutionLabel.Margin = new Padding(0);
             resolutionLabel.Name = "resolutionLabel";
-            resolutionLabel.Size = new Size(50, 20);
+            resolutionLabel.Size = new Size(44, 15);
             resolutionLabel.TabIndex = 3;
             // 
             // triangulationCheckbox
             // 
             triangulationCheckbox.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             triangulationCheckbox.AutoSize = true;
-            triangulationCheckbox.Location = new Point(11, 29);
-            triangulationCheckbox.Margin = new Padding(3, 4, 3, 4);
+            triangulationCheckbox.Location = new Point(10, 22);
             triangulationCheckbox.Name = "triangulationCheckbox";
-            triangulationCheckbox.Size = new Size(156, 24);
+            triangulationCheckbox.Size = new Size(126, 19);
             triangulationCheckbox.TabIndex = 0;
             triangulationCheckbox.Text = "Show triangulation";
             triangulationCheckbox.UseVisualStyleBackColor = true;
@@ -253,9 +245,9 @@
             label3.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             label3.AutoSize = true;
             label3.BackColor = Color.Transparent;
-            label3.Location = new Point(9, 67);
+            label3.Location = new Point(8, 50);
             label3.Name = "label3";
-            label3.Size = new Size(58, 20);
+            label3.Size = new Size(46, 15);
             label3.TabIndex = 2;
             label3.Text = "Density";
             // 
@@ -264,12 +256,11 @@
             resolutionSlider.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             resolutionSlider.AutoSize = false;
             resolutionSlider.LargeChange = 20;
-            resolutionSlider.Location = new Point(59, 63);
-            resolutionSlider.Margin = new Padding(3, 4, 3, 4);
+            resolutionSlider.Location = new Point(52, 47);
             resolutionSlider.Maximum = 64;
             resolutionSlider.Minimum = 2;
             resolutionSlider.Name = "resolutionSlider";
-            resolutionSlider.Size = new Size(219, 31);
+            resolutionSlider.Size = new Size(192, 23);
             resolutionSlider.SmallChange = 8;
             resolutionSlider.TabIndex = 0;
             resolutionSlider.TickStyle = TickStyle.None;
@@ -283,12 +274,12 @@
             tableLayoutPanel3.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
             tableLayoutPanel3.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
             tableLayoutPanel3.Dock = DockStyle.Fill;
-            tableLayoutPanel3.Location = new Point(0, 39);
+            tableLayoutPanel3.Location = new Point(0, 29);
             tableLayoutPanel3.Margin = new Padding(0);
             tableLayoutPanel3.Name = "tableLayoutPanel3";
             tableLayoutPanel3.RowCount = 1;
             tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            tableLayoutPanel3.Size = new Size(337, 1);
+            tableLayoutPanel3.Size = new Size(294, 1);
             tableLayoutPanel3.TabIndex = 3;
             // 
             // groupBox3
@@ -299,11 +290,9 @@
             groupBox3.Controls.Add(normalMapSelect);
             groupBox3.Controls.Add(objectColorSelect);
             groupBox3.Controls.Add(normalMapCheckbox);
-            groupBox3.Location = new Point(3, 481);
-            groupBox3.Margin = new Padding(3, 4, 3, 4);
+            groupBox3.Location = new Point(3, 361);
             groupBox3.Name = "groupBox3";
-            groupBox3.Padding = new Padding(3, 4, 3, 4);
-            groupBox3.Size = new Size(329, 189);
+            groupBox3.Size = new Size(288, 142);
             groupBox3.TabIndex = 4;
             groupBox3.TabStop = false;
             groupBox3.Text = "Object";
@@ -312,10 +301,9 @@
             // 
             textureRadio.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             textureRadio.AutoSize = true;
-            textureRadio.Location = new Point(65, 87);
-            textureRadio.Margin = new Padding(3, 4, 3, 4);
+            textureRadio.Location = new Point(57, 65);
             textureRadio.Name = "textureRadio";
-            textureRadio.Size = new Size(78, 24);
+            textureRadio.Size = new Size(63, 19);
             textureRadio.TabIndex = 5;
             textureRadio.Text = "Texture";
             textureRadio.UseVisualStyleBackColor = true;
@@ -327,10 +315,9 @@
             solidColorRadio.AutoSize = true;
             solidColorRadio.BackColor = Color.Transparent;
             solidColorRadio.Checked = true;
-            solidColorRadio.Location = new Point(65, 36);
-            solidColorRadio.Margin = new Padding(3, 4, 3, 4);
+            solidColorRadio.Location = new Point(57, 27);
             solidColorRadio.Name = "solidColorRadio";
-            solidColorRadio.Size = new Size(102, 24);
+            solidColorRadio.Size = new Size(81, 19);
             solidColorRadio.TabIndex = 5;
             solidColorRadio.TabStop = true;
             solidColorRadio.Text = "Solid color";
@@ -343,10 +330,9 @@
             textureSelect.BackgroundImageLayout = ImageLayout.Stretch;
             textureSelect.BorderStyle = BorderStyle.FixedSingle;
             textureSelect.Cursor = Cursors.Hand;
-            textureSelect.Location = new Point(21, 79);
-            textureSelect.Margin = new Padding(3, 4, 3, 4);
+            textureSelect.Location = new Point(18, 59);
             textureSelect.Name = "textureSelect";
-            textureSelect.Size = new Size(34, 39);
+            textureSelect.Size = new Size(30, 30);
             textureSelect.TabIndex = 4;
             textureSelect.Click += TextureSelect_Click;
             // 
@@ -356,10 +342,9 @@
             normalMapSelect.BackgroundImageLayout = ImageLayout.Stretch;
             normalMapSelect.BorderStyle = BorderStyle.FixedSingle;
             normalMapSelect.Cursor = Cursors.Hand;
-            normalMapSelect.Location = new Point(21, 141);
-            normalMapSelect.Margin = new Padding(3, 4, 3, 4);
+            normalMapSelect.Location = new Point(18, 106);
             normalMapSelect.Name = "normalMapSelect";
-            normalMapSelect.Size = new Size(34, 39);
+            normalMapSelect.Size = new Size(30, 30);
             normalMapSelect.TabIndex = 4;
             normalMapSelect.Click += NormalMapSelect_Click;
             // 
@@ -367,10 +352,9 @@
             // 
             objectColorSelect.BackColor = Color.Red;
             objectColorSelect.Cursor = Cursors.Hand;
-            objectColorSelect.Location = new Point(21, 29);
-            objectColorSelect.Margin = new Padding(3, 4, 3, 4);
+            objectColorSelect.Location = new Point(18, 22);
             objectColorSelect.Name = "objectColorSelect";
-            objectColorSelect.Size = new Size(34, 40);
+            objectColorSelect.Size = new Size(30, 30);
             objectColorSelect.TabIndex = 4;
             objectColorSelect.Click += ObjectColorSelect_Click;
             // 
@@ -378,10 +362,9 @@
             // 
             normalMapCheckbox.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             normalMapCheckbox.AutoSize = true;
-            normalMapCheckbox.Location = new Point(65, 151);
-            normalMapCheckbox.Margin = new Padding(3, 4, 3, 4);
+            normalMapCheckbox.Location = new Point(57, 113);
             normalMapCheckbox.Name = "normalMapCheckbox";
-            normalMapCheckbox.Size = new Size(115, 24);
+            normalMapCheckbox.Size = new Size(93, 19);
             normalMapCheckbox.TabIndex = 0;
             normalMapCheckbox.Text = "Normal map";
             normalMapCheckbox.UseVisualStyleBackColor = true;
@@ -401,11 +384,9 @@
             groupBox5.Controls.Add(label4);
             groupBox5.Controls.Add(ksSlider);
             groupBox5.Controls.Add(kdSlider);
-            groupBox5.Location = new Point(3, 276);
-            groupBox5.Margin = new Padding(3, 4, 3, 4);
+            groupBox5.Location = new Point(3, 207);
             groupBox5.Name = "groupBox5";
-            groupBox5.Padding = new Padding(3, 4, 3, 4);
-            groupBox5.Size = new Size(329, 197);
+            groupBox5.Size = new Size(288, 148);
             groupBox5.TabIndex = 6;
             groupBox5.TabStop = false;
             groupBox5.Text = "Lighting";
@@ -414,10 +395,9 @@
             // 
             lightAnimationCheckbox.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             lightAnimationCheckbox.AutoSize = true;
-            lightAnimationCheckbox.Location = new Point(176, 153);
-            lightAnimationCheckbox.Margin = new Padding(3, 4, 3, 4);
+            lightAnimationCheckbox.Location = new Point(154, 115);
             lightAnimationCheckbox.Name = "lightAnimationCheckbox";
-            lightAnimationCheckbox.Size = new Size(100, 24);
+            lightAnimationCheckbox.Size = new Size(82, 19);
             lightAnimationCheckbox.TabIndex = 5;
             lightAnimationCheckbox.Text = "Animation";
             lightAnimationCheckbox.UseVisualStyleBackColor = true;
@@ -427,10 +407,9 @@
             // 
             lightColorSelect.BackColor = Color.White;
             lightColorSelect.Cursor = Cursors.Hand;
-            lightColorSelect.Location = new Point(21, 144);
-            lightColorSelect.Margin = new Padding(3, 4, 3, 4);
+            lightColorSelect.Location = new Point(18, 108);
             lightColorSelect.Name = "lightColorSelect";
-            lightColorSelect.Size = new Size(34, 40);
+            lightColorSelect.Size = new Size(30, 30);
             lightColorSelect.TabIndex = 4;
             lightColorSelect.Click += LightColorSelect_Click;
             // 
@@ -438,30 +417,30 @@
             // 
             mLabel.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             mLabel.BackColor = Color.Transparent;
-            mLabel.Location = new Point(275, 107);
+            mLabel.Location = new Point(241, 80);
             mLabel.Margin = new Padding(0);
             mLabel.Name = "mLabel";
-            mLabel.Size = new Size(50, 20);
+            mLabel.Size = new Size(44, 15);
             mLabel.TabIndex = 3;
             // 
             // ksLabel
             // 
             ksLabel.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             ksLabel.BackColor = Color.Transparent;
-            ksLabel.Location = new Point(275, 68);
+            ksLabel.Location = new Point(241, 51);
             ksLabel.Margin = new Padding(0);
             ksLabel.Name = "ksLabel";
-            ksLabel.Size = new Size(50, 20);
+            ksLabel.Size = new Size(44, 15);
             ksLabel.TabIndex = 3;
             // 
             // kdLabel
             // 
             kdLabel.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             kdLabel.BackColor = Color.Transparent;
-            kdLabel.Location = new Point(275, 32);
+            kdLabel.Location = new Point(241, 24);
             kdLabel.Margin = new Padding(0);
             kdLabel.Name = "kdLabel";
-            kdLabel.Size = new Size(50, 20);
+            kdLabel.Size = new Size(44, 15);
             kdLabel.TabIndex = 3;
             // 
             // label5
@@ -469,9 +448,9 @@
             label5.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
             label5.AutoSize = true;
             label5.BackColor = Color.Transparent;
-            label5.Location = new Point(62, 155);
+            label5.Location = new Point(54, 116);
             label5.Name = "label5";
-            label5.Size = new Size(80, 20);
+            label5.Size = new Size(64, 15);
             label5.TabIndex = 2;
             label5.Text = "Light color";
             // 
@@ -479,9 +458,9 @@
             // 
             label11.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             label11.AutoSize = true;
-            label11.Location = new Point(32, 107);
+            label11.Location = new Point(28, 80);
             label11.Name = "label11";
-            label11.Size = new Size(22, 20);
+            label11.Size = new Size(18, 15);
             label11.TabIndex = 2;
             label11.Text = "m";
             // 
@@ -490,12 +469,11 @@
             mSlider.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             mSlider.AutoSize = false;
             mSlider.LargeChange = 20;
-            mSlider.Location = new Point(59, 104);
-            mSlider.Margin = new Padding(3, 4, 3, 4);
+            mSlider.Location = new Point(52, 78);
             mSlider.Maximum = 100;
             mSlider.Minimum = 1;
             mSlider.Name = "mSlider";
-            mSlider.Size = new Size(219, 31);
+            mSlider.Size = new Size(192, 23);
             mSlider.SmallChange = 10;
             mSlider.TabIndex = 0;
             mSlider.TickStyle = TickStyle.None;
@@ -506,9 +484,9 @@
             // 
             label9.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             label9.AutoSize = true;
-            label9.Location = new Point(32, 68);
+            label9.Location = new Point(28, 51);
             label9.Name = "label9";
-            label9.Size = new Size(22, 20);
+            label9.Size = new Size(18, 15);
             label9.TabIndex = 2;
             label9.Text = "ks";
             // 
@@ -516,9 +494,9 @@
             // 
             label4.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             label4.AutoSize = true;
-            label4.Location = new Point(32, 32);
+            label4.Location = new Point(28, 24);
             label4.Name = "label4";
-            label4.Size = new Size(25, 20);
+            label4.Size = new Size(20, 15);
             label4.TabIndex = 2;
             label4.Text = "kd";
             // 
@@ -527,11 +505,10 @@
             ksSlider.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             ksSlider.AutoSize = false;
             ksSlider.LargeChange = 20;
-            ksSlider.Location = new Point(59, 67);
-            ksSlider.Margin = new Padding(3, 4, 3, 4);
+            ksSlider.Location = new Point(52, 50);
             ksSlider.Maximum = 100;
             ksSlider.Name = "ksSlider";
-            ksSlider.Size = new Size(219, 31);
+            ksSlider.Size = new Size(192, 23);
             ksSlider.SmallChange = 10;
             ksSlider.TabIndex = 0;
             ksSlider.TickStyle = TickStyle.None;
@@ -543,11 +520,10 @@
             kdSlider.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             kdSlider.AutoSize = false;
             kdSlider.LargeChange = 20;
-            kdSlider.Location = new Point(59, 28);
-            kdSlider.Margin = new Padding(3, 4, 3, 4);
+            kdSlider.Location = new Point(52, 21);
             kdSlider.Maximum = 100;
             kdSlider.Name = "kdSlider";
-            kdSlider.Size = new Size(219, 31);
+            kdSlider.Size = new Size(192, 23);
             kdSlider.SmallChange = 10;
             kdSlider.TabIndex = 0;
             kdSlider.TickStyle = TickStyle.None;
@@ -556,10 +532,9 @@
             // 
             // button1
             // 
-            button1.Location = new Point(3, 4);
-            button1.Margin = new Padding(3, 4, 3, 4);
+            button1.Location = new Point(3, 3);
             button1.Name = "button1";
-            button1.Size = new Size(137, 31);
+            button1.Size = new Size(120, 23);
             button1.TabIndex = 7;
             button1.Text = "Load surface";
             button1.UseVisualStyleBackColor = true;
@@ -572,19 +547,18 @@
             canvas.Location = new Point(0, 0);
             canvas.Margin = new Padding(0);
             canvas.Name = "canvas";
-            canvas.Size = new Size(896, 881);
+            canvas.Size = new Size(784, 661);
             canvas.TabIndex = 1;
             canvas.TabStop = false;
             canvas.Paint += Canvas_Paint;
             // 
             // MainWindow
             // 
-            AutoScaleDimensions = new SizeF(8F, 20F);
+            AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1239, 881);
+            ClientSize = new Size(1084, 661);
             Controls.Add(tableLayoutPanel1);
-            Margin = new Padding(3, 4, 3, 4);
-            MinimumSize = new Size(683, 518);
+            MinimumSize = new Size(600, 600);
             Name = "MainWindow";
             Text = "MeshFiller";
             Resize += MainWindow_Resize;
