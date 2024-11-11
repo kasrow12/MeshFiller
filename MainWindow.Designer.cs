@@ -64,6 +64,10 @@
             ksSlider = new TrackBar();
             kdSlider = new TrackBar();
             button1 = new Button();
+            groupBox4 = new GroupBox();
+            scaleSlider = new TrackBar();
+            label6 = new Label();
+            scaleLabel = new Label();
             canvas = new PictureBox();
             tableLayoutPanel1.SuspendLayout();
             tableLayoutPanel2.SuspendLayout();
@@ -77,6 +81,8 @@
             ((System.ComponentModel.ISupportInitialize)mSlider).BeginInit();
             ((System.ComponentModel.ISupportInitialize)ksSlider).BeginInit();
             ((System.ComponentModel.ISupportInitialize)kdSlider).BeginInit();
+            groupBox4.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)scaleSlider).BeginInit();
             ((System.ComponentModel.ISupportInitialize)canvas).BeginInit();
             SuspendLayout();
             // 
@@ -106,6 +112,7 @@
             tableLayoutPanel2.Controls.Add(groupBox3, 0, 6);
             tableLayoutPanel2.Controls.Add(groupBox5, 0, 4);
             tableLayoutPanel2.Controls.Add(button1, 0, 0);
+            tableLayoutPanel2.Controls.Add(groupBox4, 0, 7);
             tableLayoutPanel2.Dock = DockStyle.Fill;
             tableLayoutPanel2.Location = new Point(787, 3);
             tableLayoutPanel2.Name = "tableLayoutPanel2";
@@ -118,6 +125,7 @@
             tableLayoutPanel2.RowStyles.Add(new RowStyle());
             tableLayoutPanel2.RowStyles.Add(new RowStyle());
             tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
+            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
             tableLayoutPanel2.Size = new Size(294, 655);
             tableLayoutPanel2.TabIndex = 0;
             // 
@@ -129,7 +137,7 @@
             groupBox1.Controls.Add(label2);
             groupBox1.Controls.Add(label1);
             groupBox1.Controls.Add(betaSlider);
-            groupBox1.Location = new Point(3, 32);
+            groupBox1.Location = new Point(3, 36);
             groupBox1.Name = "groupBox1";
             groupBox1.Size = new Size(288, 84);
             groupBox1.TabIndex = 2;
@@ -152,8 +160,8 @@
             alphaSlider.AutoSize = false;
             alphaSlider.LargeChange = 100;
             alphaSlider.Location = new Point(52, 20);
-            alphaSlider.Maximum = 900;
-            alphaSlider.Minimum = -900;
+            alphaSlider.Maximum = 1800;
+            alphaSlider.Minimum = -1800;
             alphaSlider.Name = "alphaSlider";
             alphaSlider.Size = new Size(192, 27);
             alphaSlider.SmallChange = 10;
@@ -197,7 +205,8 @@
             betaSlider.AutoSize = false;
             betaSlider.LargeChange = 10;
             betaSlider.Location = new Point(52, 53);
-            betaSlider.Maximum = 1200;
+            betaSlider.Maximum = 1800;
+            betaSlider.Minimum = -1800;
             betaSlider.Name = "betaSlider";
             betaSlider.Size = new Size(192, 23);
             betaSlider.SmallChange = 5;
@@ -211,7 +220,7 @@
             groupBox2.Controls.Add(triangulationCheckbox);
             groupBox2.Controls.Add(label3);
             groupBox2.Controls.Add(resolutionSlider);
-            groupBox2.Location = new Point(3, 122);
+            groupBox2.Location = new Point(3, 126);
             groupBox2.Name = "groupBox2";
             groupBox2.Size = new Size(288, 79);
             groupBox2.TabIndex = 2;
@@ -274,7 +283,7 @@
             tableLayoutPanel3.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
             tableLayoutPanel3.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
             tableLayoutPanel3.Dock = DockStyle.Fill;
-            tableLayoutPanel3.Location = new Point(0, 29);
+            tableLayoutPanel3.Location = new Point(0, 33);
             tableLayoutPanel3.Margin = new Padding(0);
             tableLayoutPanel3.Name = "tableLayoutPanel3";
             tableLayoutPanel3.RowCount = 1;
@@ -290,9 +299,9 @@
             groupBox3.Controls.Add(normalMapSelect);
             groupBox3.Controls.Add(objectColorSelect);
             groupBox3.Controls.Add(normalMapCheckbox);
-            groupBox3.Location = new Point(3, 361);
+            groupBox3.Location = new Point(3, 365);
             groupBox3.Name = "groupBox3";
-            groupBox3.Size = new Size(288, 142);
+            groupBox3.Size = new Size(288, 136);
             groupBox3.TabIndex = 4;
             groupBox3.TabStop = false;
             groupBox3.Text = "Object";
@@ -342,7 +351,7 @@
             normalMapSelect.BackgroundImageLayout = ImageLayout.Stretch;
             normalMapSelect.BorderStyle = BorderStyle.FixedSingle;
             normalMapSelect.Cursor = Cursors.Hand;
-            normalMapSelect.Location = new Point(18, 106);
+            normalMapSelect.Location = new Point(18, 95);
             normalMapSelect.Name = "normalMapSelect";
             normalMapSelect.Size = new Size(30, 30);
             normalMapSelect.TabIndex = 4;
@@ -362,7 +371,7 @@
             // 
             normalMapCheckbox.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             normalMapCheckbox.AutoSize = true;
-            normalMapCheckbox.Location = new Point(57, 113);
+            normalMapCheckbox.Location = new Point(57, 101);
             normalMapCheckbox.Name = "normalMapCheckbox";
             normalMapCheckbox.Size = new Size(93, 19);
             normalMapCheckbox.TabIndex = 0;
@@ -384,7 +393,7 @@
             groupBox5.Controls.Add(label4);
             groupBox5.Controls.Add(ksSlider);
             groupBox5.Controls.Add(kdSlider);
-            groupBox5.Location = new Point(3, 207);
+            groupBox5.Location = new Point(3, 211);
             groupBox5.Name = "groupBox5";
             groupBox5.Size = new Size(288, 148);
             groupBox5.TabIndex = 6;
@@ -401,7 +410,7 @@
             lightAnimationCheckbox.TabIndex = 5;
             lightAnimationCheckbox.Text = "Animation";
             lightAnimationCheckbox.UseVisualStyleBackColor = true;
-            lightAnimationCheckbox.CheckedChanged += lightAnimationCheckbox_CheckedChanged;
+            lightAnimationCheckbox.CheckedChanged += LightAnimationCheckbox_CheckedChanged;
             // 
             // lightColorSelect
             // 
@@ -534,11 +543,59 @@
             // 
             button1.Location = new Point(3, 3);
             button1.Name = "button1";
-            button1.Size = new Size(120, 23);
+            button1.Size = new Size(120, 27);
             button1.TabIndex = 7;
             button1.Text = "Load surface";
             button1.UseVisualStyleBackColor = true;
             button1.Click += LoadSurfaceButton_Click;
+            // 
+            // groupBox4
+            // 
+            groupBox4.Controls.Add(scaleSlider);
+            groupBox4.Controls.Add(label6);
+            groupBox4.Controls.Add(scaleLabel);
+            groupBox4.Location = new Point(3, 507);
+            groupBox4.Name = "groupBox4";
+            groupBox4.Size = new Size(288, 54);
+            groupBox4.TabIndex = 8;
+            groupBox4.TabStop = false;
+            groupBox4.Text = "View";
+            // 
+            // scaleSlider
+            // 
+            scaleSlider.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            scaleSlider.AutoSize = false;
+            scaleSlider.LargeChange = 20;
+            scaleSlider.Location = new Point(52, 22);
+            scaleSlider.Maximum = 300;
+            scaleSlider.Minimum = 10;
+            scaleSlider.Name = "scaleSlider";
+            scaleSlider.Size = new Size(192, 26);
+            scaleSlider.SmallChange = 10;
+            scaleSlider.TabIndex = 0;
+            scaleSlider.TickStyle = TickStyle.None;
+            scaleSlider.Value = 100;
+            scaleSlider.Scroll += ScaleSlider_Scroll;
+            // 
+            // label6
+            // 
+            label6.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            label6.AutoSize = true;
+            label6.Location = new Point(20, 23);
+            label6.Name = "label6";
+            label6.Size = new Size(34, 15);
+            label6.TabIndex = 2;
+            label6.Text = "Scale";
+            // 
+            // scaleLabel
+            // 
+            scaleLabel.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            scaleLabel.BackColor = Color.Transparent;
+            scaleLabel.Location = new Point(241, 23);
+            scaleLabel.Margin = new Padding(0);
+            scaleLabel.Name = "scaleLabel";
+            scaleLabel.Size = new Size(44, 15);
+            scaleLabel.TabIndex = 3;
             // 
             // canvas
             // 
@@ -579,6 +636,9 @@
             ((System.ComponentModel.ISupportInitialize)mSlider).EndInit();
             ((System.ComponentModel.ISupportInitialize)ksSlider).EndInit();
             ((System.ComponentModel.ISupportInitialize)kdSlider).EndInit();
+            groupBox4.ResumeLayout(false);
+            groupBox4.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)scaleSlider).EndInit();
             ((System.ComponentModel.ISupportInitialize)canvas).EndInit();
             ResumeLayout(false);
         }
@@ -623,5 +683,9 @@
         private TrackBar ksSlider;
         private TrackBar kdSlider;
         private Button button1;
+        private GroupBox groupBox4;
+        private TrackBar scaleSlider;
+        private Label label6;
+        private Label scaleLabel;
     }
 }

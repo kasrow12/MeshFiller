@@ -178,8 +178,8 @@ namespace MeshFiller.Classes
             if (!UseNormalMap || NormalMap is null)
                 return normal;
 
-                int x = (int)(v * (NormalMap.GetLength(0) - 1));
-                int y = (int)(u * (NormalMap.GetLength(1) - 1));
+            int x = (int)(v * (NormalMap.GetLength(0) - 1));
+            int y = (int)(u * (NormalMap.GetLength(1) - 1));
             Color color = NormalMap[x, y];
 
             Vector3 normalMap = new(
