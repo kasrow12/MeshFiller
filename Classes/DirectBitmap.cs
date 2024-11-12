@@ -15,15 +15,11 @@ namespace MeshFiller.Classes
         public bool Disposed { get; private set; }
         public int Height { get; private set; }
         public int Width { get; private set; }
-        public int ChangeX { get; private set; }
-        public int ChangeY { get; private set; }
 
         protected GCHandle BitsHandle { get; private set; }
 
-        public DirectBitmap(int width, int height, int changeX, int changeY)
+        public DirectBitmap(int width, int height)
         {
-            ChangeX = changeX;
-            ChangeY = changeY;
             Width = width;
             Height = height;
             Bits = new Int32[width * height];
@@ -33,12 +29,7 @@ namespace MeshFiller.Classes
 
         public void SetPixel(int x, int y, Color color)
         {
-            int newX = x + ChangeX;
-            int newY = ChangeY - y;
-            int index = newX + (newY * Width);
-
-            if (newX < 0 || newX >= Width || newY < 0 || newY >= Height)
-                return;
+            int index = x + (y * Width);
 
             int col = color.ToArgb();
             Bits[index] = col;

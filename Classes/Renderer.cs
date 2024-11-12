@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Drawing;
+using System.Numerics;
 
 namespace MeshFiller.Classes
 {
@@ -17,6 +18,10 @@ namespace MeshFiller.Classes
         public Vector3 LightColor { get; set; } = new(1, 1, 1);
         public Vector3 ObjectColor { get; set; } = new(1, 0, 0);
         public Vector3 LightDirection { get; set; } = Vector3.Normalize(new Vector3(0, -3, 2));
+
+        private float[,] zBuffer;
+        private int ChangeX { get; set; }
+        private int ChangeY { get; set; }
 
         private Vector3 V = new(0, 0, 1);
 
@@ -78,16 +83,20 @@ namespace MeshFiller.Classes
                 // Sort ascending x
                 aet = aet.OrderBy(e => e.XCurrent).ToList();
 
-                // Fill pixels between edges 0-1, 2-3, ..
-                for (int i = 0; i < aet.Count; i += 2)
+                int bitmapY = ChangeY - y;
+                if (bitmapY >= 0 && bitmapY < bitmap.Height)
                 {
-                    int x1 = (int)Math.Round(aet[i].XCurrent);
-                    int x2 = (int)Math.Round(aet[i + 1].XCurrent); // potestować z Math.Round/ceiling/floor
-
-                    for (int x = x1; x <= x2; x++)
+                    // Fill pixels between edges 0-1, 2-3, ..
+                    for (int i = 0; i < aet.Count; i += 2)
                     {
-                        // for triangles
-                        FillPixel(bitmap, t, x, y);
+                        int x1 = (int)Math.Round(aet[i].XCurrent);
+                        int x2 = (int)Math.Round(aet[i + 1].XCurrent); // potestować z Math.Round/ceiling/floor
+
+                        for (int x = x1; x < x2; x++)
+                        {
+                            // for triangles
+                            FillPixel(bitmap, t, x, y);
+                        }
                     }
                 }
 
@@ -102,16 +111,31 @@ namespace MeshFiller.Classes
         // Fill pixel based on barycentric coordinates
         private void FillPixel(DirectBitmap bitmap, Triangle t, int x, int y)
         {
+            int bitmapX = x + ChangeX;
+            int bitmapY = ChangeY - y;
+
+            if (bitmapX < 0 || bitmapX >= bitmap.Width)
+                return;
+
             (float a, float b, float c) = Barycentric2(new Vector2(x, y), t);
 
-            if (a == -1)
+            if (a == -1 && b == -1 && c == -1)
             {
-                // zdegenerowany trójkąt
+                // Degenerate triangle
+                bitmap.SetPixel(bitmapX, bitmapY, Color.Blue);
                 return;
             }
 
             // Interpolate z, u, v, normal
             float z = a * t.V1.Z + b * t.V2.Z + c * t.V3.Z;
+
+            if (zBuffer[bitmapX, bitmapY] < z)
+            {
+                //bitmap.SetPixel(bitmapX, bitmapY, Color.Cyan);
+                return;
+            }
+
+            zBuffer[bitmapX, bitmapY] = z;
 
             (a, b, c) = Barycentric(new Vector3(x, y, z), t);
 
@@ -121,7 +145,7 @@ namespace MeshFiller.Classes
             Vector3 normal = Vector3.Normalize(a * t.V1.RotN + b * t.V2.RotN + c * t.V3.RotN);
             normal = GetNormalMap(u, v, normal, t, a, b, c);
 
-            DrawPixel(bitmap, x, y, u, v, normal);
+            DrawPixel(bitmap, bitmapX, bitmapY, u, v, normal);
         }
 
         // https://gamedev.stackexchange.com/questions/23743/whats-the-most-efficient-way-to-find-barycentric-coordinates
@@ -144,7 +168,7 @@ namespace MeshFiller.Classes
 
         private static (float, float, float) Barycentric2(Vector2 P, Triangle t)
         {
-            Vector2 P2 = P - new Vector2(t.V1.RotP.X, t.V1.RotP.Y);
+            Vector2 P2 = P - new Vector2(t.V1.X, t.V1.Y);
 
             float p20 = Vector2.Dot(P2, t.P0);
             float p21 = Vector2.Dot(P2, t.P1);
@@ -201,7 +225,7 @@ namespace MeshFiller.Classes
         private void DrawPixel(DirectBitmap bitmap, int x, int y, float u, float v, Vector3 normal)
         {
             float NdotL = Vector3.Dot(normal, LightDirection);
-            float cosNL = Math.Max(NdotL, 0); // cos >= 0
+            float cosNL = Math.Max(NdotL, 0); // negative cos = 0
 
             Vector3 R = Vector3.Normalize(2 * NdotL * normal - LightDirection);
 
@@ -222,6 +246,20 @@ namespace MeshFiller.Classes
             );
 
             bitmap.SetPixel(x, y, finalColor);
+        }
+
+        public void UpdateZBuffer(int width, int height, int changeX, int changeY)
+        {
+            ChangeX = changeX;
+            ChangeY = changeY;
+            zBuffer = new float[width, height];
+            for (int i = 0; i < width; i++)
+            {
+                for (int j = 0; j < height; j++)
+                {
+                    zBuffer[i, j] = float.MaxValue;
+                }
+            }
         }
     }
 }

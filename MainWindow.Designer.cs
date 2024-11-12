@@ -167,6 +167,7 @@
             alphaSlider.SmallChange = 10;
             alphaSlider.TabIndex = 0;
             alphaSlider.TickStyle = TickStyle.None;
+            alphaSlider.Value = -556;
             alphaSlider.Scroll += AngleSlider_Scroll;
             // 
             // betaLabel
@@ -212,6 +213,7 @@
             betaSlider.SmallChange = 5;
             betaSlider.TabIndex = 0;
             betaSlider.TickStyle = TickStyle.None;
+            betaSlider.Value = 775;
             betaSlider.Scroll += AngleSlider_Scroll;
             // 
             // groupBox2
@@ -567,14 +569,14 @@
             scaleSlider.AutoSize = false;
             scaleSlider.LargeChange = 20;
             scaleSlider.Location = new Point(52, 22);
-            scaleSlider.Maximum = 300;
+            scaleSlider.Maximum = 500;
             scaleSlider.Minimum = 10;
             scaleSlider.Name = "scaleSlider";
             scaleSlider.Size = new Size(192, 26);
             scaleSlider.SmallChange = 10;
             scaleSlider.TabIndex = 0;
             scaleSlider.TickStyle = TickStyle.None;
-            scaleSlider.Value = 100;
+            scaleSlider.Value = 250;
             scaleSlider.Scroll += ScaleSlider_Scroll;
             // 
             // label6

@@ -18,12 +18,8 @@ namespace MeshFiller.Classes
 
         public void Recalculate()
         {
-            V1 = v1;
-            V2 = v2;
-            V3 = v3;
-
-            P0 = new Vector2(V2.X - V1.X, V2.Y - V1.Y);
-            P1 = new Vector2(V3.X - V1.X, V3.Y - V1.Y);
+            P0 = new Vector2(V2.X, V2.Y) - new Vector2(V1.X, V1.Y);
+            P1 = new Vector2(V3.X, V3.Y) - new Vector2(V1.X, V1.Y);
 
             p00 = Vector2.Dot(P0, P0);
             p01 = Vector2.Dot(P0, P1);

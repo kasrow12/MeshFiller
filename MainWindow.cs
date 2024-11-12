@@ -22,7 +22,7 @@ namespace MeshFiller
         public MainWindow()
         {
             InitializeComponent();
-            bitmap = new(canvas.Width, canvas.Height, canvas.Width / 2, canvas.Height / 2);
+            bitmap = new(canvas.Width, canvas.Height);
             bezier = new();
 
             // Set default values
@@ -55,6 +55,7 @@ namespace MeshFiller
             else
             {
                 bitmap.Clear(Color.White);
+                renderer.UpdateZBuffer(bitmap.Width, bitmap.Height, bitmap.Width / 2, bitmap.Height / 2);
 
                 Parallel.ForEach(bezier.Mesh, t =>
                 {
@@ -142,7 +143,7 @@ namespace MeshFiller
         private void MainWindow_Resize(object sender, EventArgs e)
         {
             bitmap?.Dispose();
-            bitmap = new DirectBitmap(canvas.Width, canvas.Height, canvas.Width / 2, canvas.Height / 2);
+            bitmap = new DirectBitmap(canvas.Width, canvas.Height);
             canvas.Invalidate();
         }
 
