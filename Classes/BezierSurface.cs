@@ -139,7 +139,7 @@ namespace MeshFiller.Classes
             Quaternion rotX = Quaternion.CreateFromAxisAngle(Vector3.UnitX, MathF.PI * Beta / 180f);
             Quaternion rotZX = Quaternion.Concatenate(rotZ, rotX);
 
-            for (int i = 0; i < vertices.GetLength(0); i++)
+            Parallel.For(0, vertices.GetLength(0), i =>
             {
                 for (int j = 0; j < vertices.GetLength(1); j++)
                 {
@@ -148,7 +148,7 @@ namespace MeshFiller.Classes
                     vertices[i, j].RotPv = Scale * Vector3.Transform(vertices[i, j].Pv, rotZX);
                     vertices[i, j].RotN = Scale * Vector3.Transform(vertices[i, j].N, rotZX);
                 }
-            }
+            });
 
             for (int i = 0; i < surface.GetLength(0); i++)
             {
@@ -158,10 +158,10 @@ namespace MeshFiller.Classes
                 }
             }
 
-            foreach (Triangle t in Mesh)
+            Parallel.ForEach(Mesh, t =>
             {
                 t.Recalculate();
-            }
+            });
         }
     }
 }
