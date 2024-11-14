@@ -26,15 +26,19 @@ namespace MeshFiller
             bitmap = new(canvas.Width, canvas.Height);
             bezier = new();
 
-            // Set default values
+            SetupUI();
+
+            SetupTimer();
+        }
+
+        private void SetupUI()
+        {
             AngleSlider_Scroll(null, null);
             ResolutionSlider_Scroll(null, null);
             LightingSlider_Scroll(null, null);
             ScaleSlider_Scroll(null, null);
             zSlider_Scroll(null, null);
             zBufferCheckbox_CheckedChanged(null, null);
-
-            SetupTimer();
         }
 
         // ----- Drawing ----------------------------------------------------------
@@ -379,6 +383,15 @@ namespace MeshFiller
         {
             renderer.UseZBuffer = zBufferCheckbox.Checked;
             canvas.Invalidate();
+        }
+
+        private void resetButton_Click(object sender, EventArgs e)
+        {
+            alphaSlider.Value = 0;
+            betaSlider.Value = 0;
+            scaleSlider.Value = 100;
+
+            SetupUI();
         }
     }
 }

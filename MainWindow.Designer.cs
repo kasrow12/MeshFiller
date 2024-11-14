@@ -66,12 +66,14 @@
             label4 = new Label();
             ksSlider = new TrackBar();
             kdSlider = new TrackBar();
-            button1 = new Button();
             groupBox4 = new GroupBox();
             zBufferCheckbox = new CheckBox();
             scaleSlider = new TrackBar();
             label6 = new Label();
             scaleLabel = new Label();
+            tableLayoutPanel4 = new TableLayoutPanel();
+            button1 = new Button();
+            resetButton = new Button();
             canvas = new PictureBox();
             tableLayoutPanel1.SuspendLayout();
             tableLayoutPanel2.SuspendLayout();
@@ -88,6 +90,7 @@
             ((System.ComponentModel.ISupportInitialize)kdSlider).BeginInit();
             groupBox4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)scaleSlider).BeginInit();
+            tableLayoutPanel4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)canvas).BeginInit();
             SuspendLayout();
             // 
@@ -116,14 +119,14 @@
             tableLayoutPanel2.Controls.Add(tableLayoutPanel3, 0, 1);
             tableLayoutPanel2.Controls.Add(groupBox3, 0, 6);
             tableLayoutPanel2.Controls.Add(groupBox5, 0, 4);
-            tableLayoutPanel2.Controls.Add(button1, 0, 0);
             tableLayoutPanel2.Controls.Add(groupBox4, 0, 7);
+            tableLayoutPanel2.Controls.Add(tableLayoutPanel4, 0, 0);
             tableLayoutPanel2.Dock = DockStyle.Fill;
             tableLayoutPanel2.Location = new Point(899, 4);
             tableLayoutPanel2.Margin = new Padding(3, 4, 3, 4);
             tableLayoutPanel2.Name = "tableLayoutPanel2";
             tableLayoutPanel2.RowCount = 8;
-            tableLayoutPanel2.RowStyles.Add(new RowStyle());
+            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Absolute, 44F));
             tableLayoutPanel2.RowStyles.Add(new RowStyle());
             tableLayoutPanel2.RowStyles.Add(new RowStyle());
             tableLayoutPanel2.RowStyles.Add(new RowStyle());
@@ -606,17 +609,6 @@
             kdSlider.Value = 90;
             kdSlider.Scroll += LightingSlider_Scroll;
             // 
-            // button1
-            // 
-            button1.Location = new Point(3, 4);
-            button1.Margin = new Padding(3, 4, 3, 4);
-            button1.Name = "button1";
-            button1.Size = new Size(137, 36);
-            button1.TabIndex = 7;
-            button1.Text = "Load surface";
-            button1.UseVisualStyleBackColor = true;
-            button1.Click += LoadSurfaceButton_Click;
-            // 
             // groupBox4
             // 
             groupBox4.Controls.Add(zBufferCheckbox);
@@ -682,6 +674,45 @@
             scaleLabel.Size = new Size(50, 41);
             scaleLabel.TabIndex = 3;
             // 
+            // tableLayoutPanel4
+            // 
+            tableLayoutPanel4.ColumnCount = 2;
+            tableLayoutPanel4.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            tableLayoutPanel4.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            tableLayoutPanel4.Controls.Add(button1, 0, 0);
+            tableLayoutPanel4.Controls.Add(resetButton, 1, 0);
+            tableLayoutPanel4.Dock = DockStyle.Fill;
+            tableLayoutPanel4.Location = new Point(3, 3);
+            tableLayoutPanel4.Name = "tableLayoutPanel4";
+            tableLayoutPanel4.RowCount = 1;
+            tableLayoutPanel4.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+            tableLayoutPanel4.Size = new Size(331, 38);
+            tableLayoutPanel4.TabIndex = 9;
+            // 
+            // button1
+            // 
+            button1.Dock = DockStyle.Fill;
+            button1.Location = new Point(3, 4);
+            button1.Margin = new Padding(3, 4, 3, 4);
+            button1.Name = "button1";
+            button1.Size = new Size(159, 30);
+            button1.TabIndex = 7;
+            button1.Text = "Load surface";
+            button1.UseVisualStyleBackColor = true;
+            button1.Click += LoadSurfaceButton_Click;
+            // 
+            // resetButton
+            // 
+            resetButton.Dock = DockStyle.Fill;
+            resetButton.Location = new Point(168, 4);
+            resetButton.Margin = new Padding(3, 4, 3, 4);
+            resetButton.Name = "resetButton";
+            resetButton.Size = new Size(160, 30);
+            resetButton.TabIndex = 7;
+            resetButton.Text = "Reset position";
+            resetButton.UseVisualStyleBackColor = true;
+            resetButton.Click += resetButton_Click;
+            // 
             // canvas
             // 
             canvas.BackColor = Color.White;
@@ -726,6 +757,7 @@
             groupBox4.ResumeLayout(false);
             groupBox4.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)scaleSlider).EndInit();
+            tableLayoutPanel4.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)canvas).EndInit();
             ResumeLayout(false);
         }
@@ -778,5 +810,7 @@
         private Label label7;
         private TrackBar zSlider;
         private CheckBox zBufferCheckbox;
+        private TableLayoutPanel tableLayoutPanel4;
+        private Button resetButton;
     }
 }

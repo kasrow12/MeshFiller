@@ -38,7 +38,7 @@ namespace MeshFiller.Classes
             public List<int> VertexIndices { get; set; } = new();
         }
 
-        // Update AET with new edges, start should be lower than end
+        // Update AET with new edges, start.Y <= end.Y
         private static void UpdateAET(List<Edge> aet, Vertex start, Vertex end, int y)
         {
             int endY = (int)Math.Round(end.Y);
