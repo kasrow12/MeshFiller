@@ -53,6 +53,12 @@ namespace MeshFiller
                 renderer.FillPolygon(bitmap, [t.V1, t.V2, t.V3], t);
             });
 
+            //Multiple vertices polygon
+            //renderer.FillPolygon(bitmap, [bezier.Mesh[2].V1, bezier.Mesh[13].V2, bezier.Mesh[23].V3,
+            //    bezier.Mesh[32].V3, bezier.Mesh[42].V3, bezier.Mesh[52].V3, bezier.Mesh[62].V3,
+            //    bezier.Mesh[72].V3, bezier.Mesh[82].V3, bezier.Mesh[92].V3
+            //    ], null);
+
             g.DrawImage(bitmap.Bitmap, 0, 0);
 
             g.DrawEllipse(Pens.Black, renderer.LightPosition.X - 5 + renderer.ChangeX,
@@ -66,9 +72,6 @@ namespace MeshFiller
                 g.TranslateTransform(canvas.Width / 2, -canvas.Height / 2);
                 DrawTriangulation(g);
             }
-
-            //Fill random 4 points 
-            //renderer.FillPolygon(g, [mesh[2].V1, mesh[40].V2, mesh[23].V3, mesh[88].V3, mesh[100].V3]);
         }
 
         public void DrawTriangulation(Graphics g)

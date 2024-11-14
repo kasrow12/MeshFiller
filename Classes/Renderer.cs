@@ -32,6 +32,11 @@ namespace MeshFiller.Classes
             public float XCurrent;
             public float InvSlope;
         }
+        private class YEvent
+        {
+            public int Y { get; set; }
+            public List<int> VertexIndices { get; set; } = new();
+        }
 
         // Update AET with new edges, start should be lower than end
         private static void UpdateAET(List<Edge> aet, Vertex start, Vertex end, int y)
@@ -48,33 +53,50 @@ namespace MeshFiller.Classes
             }
         }
 
-        public void FillPolygon(DirectBitmap bitmap, List<Vertex> vertices, Triangle t)
+        public void FillPolygon(DirectBitmap bitmap, List<Vertex> vertices, Triangle? triangle)
         {
-            // Sort vertices by Y
-            List<int> ind = Enumerable.Range(0, vertices.Count).ToList();
-            ind.Sort((a, b) => (vertices[a].Y).CompareTo(vertices[b].Y));
+            Dictionary<int, YEvent> yEvents = [];
 
-            int minY = (int)Math.Round(vertices[ind[0]].Y);
-            int maxY = (int)Math.Round(vertices[ind[^1]].Y);
+            // For each vertex, create or update events for its y-coordinate
+            for (int i = 0; i < vertices.Count; i++)
+            {
+                int y = (int)Math.Round(vertices[i].Y);
+                if (!yEvents.ContainsKey(y))
+                {
+                    yEvents[y] = new YEvent { Y = y };
+                }
+                yEvents[y].VertexIndices.Add(i);
+            }
 
+            // Convert to sorted list
+            List<YEvent> sortedEvents = yEvents.Values.OrderBy(e => e.Y).ToList();
+
+            int minY = sortedEvents[0].Y;
+            int maxY = sortedEvents[^1].Y;
             List<Edge> aet = [];
+
+            int currentEventIndex = 0;
+            YEvent? currentEvent = sortedEvents[0];
 
             for (int y = minY; y <= maxY; y++)
             {
-                // For each vertex Pi lying on the previous scanline: P[ind[k]].y = y-1
-                foreach (int i in ind)
+                // Process vertices on current scanline
+                if (currentEvent != null && currentEvent.Y == y - 1)
                 {
-                    Vertex v = vertices[i];
-                    if ((int)Math.Round(v.Y) == y - 1)
+                    foreach (int i in currentEvent.VertexIndices)
                     {
+                        Vertex v = vertices[i];
                         // Find the previous vertex Pi-1
                         Vertex prev = vertices[(i - 1 + vertices.Count) % vertices.Count];
                         UpdateAET(aet, v, prev, y);
-
                         // Find the next vertex Pi+1
                         Vertex next = vertices[(i + 1) % vertices.Count];
                         UpdateAET(aet, v, next, y);
                     }
+
+                    // Move to next event
+                    currentEventIndex++;
+                    currentEvent = currentEventIndex < sortedEvents.Count ? sortedEvents[currentEventIndex] : null;
                 }
 
                 // Remove ending edges
@@ -91,12 +113,15 @@ namespace MeshFiller.Classes
                     for (int i = 0; i < aet.Count; i += 2)
                     {
                         int x1 = (int)Math.Round(aet[i].XCurrent);
-                        int x2 = (int)Math.Round(aet[i + 1].XCurrent); // potestować z Math.Round/ceiling/floor
+                        int x2 = (int)Math.Round(aet[i + 1].XCurrent);
 
                         for (int x = x1; x < x2; x++)
                         {
-                            // for triangles
-                            FillPixel(bitmap, t, x, y);
+                            if (triangle != null)
+                                FillPixel(bitmap, triangle, x, y);
+                            // Multiple-vertices polygon
+                            else
+                                bitmap.SetPixel(x + ChangeX, bitmapY, Color.Red);
                         }
                     }
                 }
