@@ -1,5 +1,4 @@
-﻿using System.Drawing;
-using System.Numerics;
+﻿using System.Numerics;
 
 namespace MeshFiller.Classes
 {
@@ -17,11 +16,13 @@ namespace MeshFiller.Classes
 
         public Vector3 LightColor { get; set; } = new(1, 1, 1);
         public Vector3 ObjectColor { get; set; } = new(1, 0, 0);
-        public Vector3 LightDirection { get; set; } = Vector3.Normalize(new Vector3(0, -3, 2));
+
+        public Vector3 LightPosition = new(130, 0, 400);
 
         private float[,] zBuffer;
-        private int ChangeX { get; set; }
-        private int ChangeY { get; set; }
+        public int ChangeX { get; set; }
+        public int ChangeY { get; set; }
+        public bool UseZBuffer { get; set; }
 
         private Vector3 V = new(0, 0, 1);
 
@@ -122,7 +123,7 @@ namespace MeshFiller.Classes
             if (a == -1 && b == -1 && c == -1)
             {
                 // Degenerate triangle
-                bitmap.SetPixel(bitmapX, bitmapY, Color.Blue);
+                //bitmap.SetPixel(bitmapX, bitmapY, Color.Blue);
                 return;
             }
 
@@ -132,12 +133,15 @@ namespace MeshFiller.Classes
             if (zBuffer[bitmapX, bitmapY] < z)
             {
                 //bitmap.SetPixel(bitmapX, bitmapY, Color.Cyan);
-                return;
+                if (UseZBuffer)
+                    return;
             }
 
             zBuffer[bitmapX, bitmapY] = z;
 
-            (a, b, c) = Barycentric(new Vector3(x, y, z), t);
+            Vector3 P = new(x, y, z);
+
+            (a, b, c) = Barycentric(P, t);
 
             float u = Math.Clamp(a * t.V1.u + b * t.V2.u + c * t.V3.u, 0, 1);
             float v = Math.Clamp(a * t.V1.v + b * t.V2.v + c * t.V3.v, 0, 1);
@@ -145,7 +149,7 @@ namespace MeshFiller.Classes
             Vector3 normal = Vector3.Normalize(a * t.V1.RotN + b * t.V2.RotN + c * t.V3.RotN);
             normal = GetNormalMap(u, v, normal, t, a, b, c);
 
-            DrawPixel(bitmap, bitmapX, bitmapY, u, v, normal);
+            DrawPixel(bitmap, bitmapX, bitmapY, P, u, v, normal);
         }
 
         // https://gamedev.stackexchange.com/questions/23743/whats-the-most-efficient-way-to-find-barycentric-coordinates
@@ -222,12 +226,14 @@ namespace MeshFiller.Classes
         }
 
         // Draw pixel with Lambert shading
-        private void DrawPixel(DirectBitmap bitmap, int x, int y, float u, float v, Vector3 normal)
+        private void DrawPixel(DirectBitmap bitmap, int x, int y, Vector3 P, float u, float v, Vector3 normal)
         {
-            float NdotL = Vector3.Dot(normal, LightDirection);
+            Vector3 L = Vector3.Normalize(LightPosition - P);
+
+            float NdotL = Vector3.Dot(normal, L);
             float cosNL = Math.Max(NdotL, 0); // negative cos = 0
 
-            Vector3 R = Vector3.Normalize(2 * NdotL * normal - LightDirection);
+            Vector3 R = Vector3.Normalize(2 * NdotL * normal - L);
 
             float cosVR = Math.Max(Vector3.Dot(V, R), 0);
 

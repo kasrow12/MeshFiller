@@ -1,5 +1,4 @@
 using MeshFiller.Classes;
-using System.Drawing.Imaging;
 using System.Globalization;
 using System.Numerics;
 
@@ -19,6 +18,8 @@ namespace MeshFiller
         private System.Windows.Forms.Timer animationTimer;
         private const float ANIMATION_ANGLE = 0.03f;
 
+        public static string ExamplesPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\Examples");
+
         public MainWindow()
         {
             InitializeComponent();
@@ -30,11 +31,11 @@ namespace MeshFiller
             ResolutionSlider_Scroll(null, null);
             LightingSlider_Scroll(null, null);
             ScaleSlider_Scroll(null, null);
+            zSlider_Scroll(null, null);
+            zBufferCheckbox_CheckedChanged(null, null);
 
             SetupTimer();
         }
-
-        // on scroll update scale
 
         // ----- Drawing ----------------------------------------------------------
 
@@ -44,29 +45,30 @@ namespace MeshFiller
                 return;
 
             Graphics g = e.Graphics;
+            bitmap.Clear(Color.White);
+            renderer.UpdateZBuffer(bitmap.Width, bitmap.Height, bitmap.Width / 2, bitmap.Height / 2);
+
+            Parallel.ForEach(bezier.Mesh, t =>
+            {
+                renderer.FillPolygon(bitmap, [t.V1, t.V2, t.V3], t);
+            });
+
+            g.DrawImage(bitmap.Bitmap, 0, 0);
+
+            g.DrawEllipse(Pens.Black, renderer.LightPosition.X - 5 + renderer.ChangeX,
+                renderer.ChangeY - renderer.LightPosition.Y + 5, 10, 10);
+            g.FillEllipse(Brushes.White, renderer.LightPosition.X - 5 + renderer.ChangeX,
+                renderer.ChangeY - renderer.LightPosition.Y + 5, 10, 10);
 
             if (triangulationVisible)
             {
                 g.ScaleTransform(1, -1);
                 g.TranslateTransform(canvas.Width / 2, -canvas.Height / 2);
-
                 DrawTriangulation(g);
             }
-            else
-            {
-                bitmap.Clear(Color.White);
-                renderer.UpdateZBuffer(bitmap.Width, bitmap.Height, bitmap.Width / 2, bitmap.Height / 2);
 
-                Parallel.ForEach(bezier.Mesh, t =>
-                {
-                    renderer.FillPolygon(bitmap, [t.V1, t.V2, t.V3], t);
-                });
-
-                g.DrawImage(bitmap.Bitmap, 0, 0);
-
-                //Fill random 4 points 
-                //renderer.FillPolygon(g, [mesh[2].V1, mesh[40].V2, mesh[23].V3, mesh[88].V3, mesh[100].V3]);
-            }
+            //Fill random 4 points 
+            //renderer.FillPolygon(g, [mesh[2].V1, mesh[40].V2, mesh[23].V3, mesh[88].V3, mesh[100].V3]);
         }
 
         public void DrawTriangulation(Graphics g)
@@ -152,8 +154,9 @@ namespace MeshFiller
         private void LoadSurfaceButton_Click(object sender, EventArgs e)
         {
             using OpenFileDialog openFileDialog = new();
-
+            openFileDialog.InitialDirectory = Path.GetFullPath(ExamplesPath);
             openFileDialog.Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*";
+
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
                 LoadBezierSurface(openFileDialog.FileName);
@@ -325,8 +328,8 @@ namespace MeshFiller
         // Rotate light source around the z-axis
         private void AnimationTimer_Tick(object? sender, EventArgs e)
         {
-            renderer.LightDirection = Vector3.Transform(
-                renderer.LightDirection,
+            renderer.LightPosition = Vector3.Transform(
+                renderer.LightPosition,
                 Quaternion.CreateFromAxisAngle(Vector3.UnitZ, ANIMATION_ANGLE)
                 );
 
@@ -352,13 +355,26 @@ namespace MeshFiller
             return (rgb, color);
         }
 
-        // ----- Scale -------------------------------------------------------------
+        // ----- View -------------------------------------------------------------
 
         private void ScaleSlider_Scroll(object? sender, EventArgs? e)
         {
             bezier.Scale = scaleSlider.Value / 100.0f;
             scaleLabel.Text = bezier.Scale.ToString();
             bezier.RotateMesh();
+            canvas.Invalidate();
+        }
+
+        private void zSlider_Scroll(object? sender, EventArgs? e)
+        {
+            renderer.LightPosition.Z = zSlider.Value;
+            zLabel.Text = renderer.LightPosition.Z.ToString();
+            canvas.Invalidate();
+        }
+
+        private void zBufferCheckbox_CheckedChanged(object? sender, EventArgs? e)
+        {
+            renderer.UseZBuffer = zBufferCheckbox.Checked;
             canvas.Invalidate();
         }
     }

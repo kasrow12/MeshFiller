@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing.Imaging;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Drawing.Imaging;
 
 namespace MeshFiller.Classes
 {
@@ -12,6 +7,7 @@ namespace MeshFiller.Classes
         public static Bitmap? Load()
         {
             using OpenFileDialog openFileDialog = new();
+            openFileDialog.InitialDirectory = Path.GetFullPath(MainWindow.ExamplesPath);
             openFileDialog.Filter = "Image files (*.png;*.jpg;*.jpeg;*.bmp)|*.png;*.jpg;*.jpeg;*.bmp|All files (*.*)|*.*";
 
             if (openFileDialog.ShowDialog() != DialogResult.OK)
